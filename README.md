@@ -1,73 +1,112 @@
-# React + TypeScript + Vite
+# 红楼幻梦 · 大观园群芳谱
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![Deploy to GitHub Pages](https://github.com/mashengjia/红楼幻梦/actions/workflows/deploy.yml/badge.svg)](https://github.com/mashengjia/红楼幻梦/actions/workflows/deploy.yml)
 
-Currently, two official plugins are available:
+> 一款以《红楼梦》为背景的 **MBTI 文字养成游戏**。你扮演贾宝玉，在大观园的三十个日夜中读书、游园、结交群芳，最终走向属于你的结局。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🎮 在线体验
 
-## React Compiler
+🔗 **[点击开始游戏](https://mashengjia.github.io/红楼幻梦/)**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+支持 **PWA 离线安装**：手机浏览器打开 → "添加到主屏幕"，即可像原生 App 一样离线游玩。
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ 核心玩法
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| 系统 | 说明 |
+|------|------|
+| **养成周期** | 30 天 × 每天 3 个时段（上午 / 下午 / 晚上） |
+| **日常行动** | 族学打卡、闭门苦读、躺平充能、赋诗卖稿、典当旧物 |
+| **游园探索** | 潇湘馆、蘅芜苑、沁芳亭、秋爽斋、怡红院、栊翠庵六大地图 |
+| **好感剧情** | 7 位女主角各有 3 段阶梯式剧情，送对礼物触发名场面 |
+| **随机事件** | 10+ 种 NPC 随机事件（贾政考较、凤姐收账、刘姥姥进城等） |
+| **天气系统** | 晴雨多云影响行动收益 |
+| **多结局** | 9 种结局 + 太虚幻境图鉴收集 |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 七位女主角 & MBTI
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| 角色 | 称号 | MBTI | 标签 |
+|------|------|------|------|
+| 林黛玉 | 潇湘妃子 | INFP | 纯爱内耗战神 |
+| 薛宝钗 | 蘅芜君 | ESTJ | 人间清醒事业批 |
+| 史湘云 | 枕霞旧友 | ESFP | 及时行乐小狗 |
+| 贾探春 | 蕉下客 | ENTJ | 大观园改革家 |
+| 花袭人 | 贤袭人 | ISFJ | 爹系贴心丫鬟 |
+| 晴雯 | 勇晴雯 | ENTP | 叛逆爆竹美人 |
+| 妙玉 | 槛外人 | INTJ | 清冷精神洁癖 |
+
+### 名场面解锁
+
+- 🪷 黛玉：沁芳闸 **共读西厢**
+- 🪹 宝钗：滴翠亭 **听劝深谈**
+- 🌺 湘云：芍药栏 **醉眠芍药裀**
+- 🍂 探春：秋爽斋 **事业合伙人**
+- 🪭 晴雯：怡红院 **撕扇子作千金一笑**
+- 🍵 妙玉：栊翠庵 **槛外人动凡心**
+
+---
+
+## 🛠 技术栈
+
+- **React 19** + **TypeScript** + **Vite**
+- **Tailwind CSS v4**
+- **PWA**（vite-plugin-pwa）支持离线缓存
+- 自动部署至 **GitHub Pages**
+
+---
+
+## 🚀 本地开发
+
+```bash
+# 安装依赖
+npm install
+
+# 启动开发服务器
+npm run dev
+
+# 构建生产版本
+npm run build
+
+# 预览构建产物
+npm run preview
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 📦 部署
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+本项目已配置 **GitHub Actions** 自动部署：
+
+1. 推送代码到 `main` 分支
+2. GitHub Actions 自动执行 `npm run build`
+3. 将 `dist/` 部署到 GitHub Pages
+
+如需手动部署到其他平台，直接上传 `dist/` 目录即可。
+
+---
+
+## 📝 存档说明
+
+游戏进度使用 **localStorage** 本地存储：
+
+- 自动存档：游戏进行中每日自动保存
+- 结局图鉴：已解锁结局永久保存
+- 主菜单支持「继续梦境」读取上回存档
+
+> ⚠️ 清除浏览器数据会导致存档丢失。
+
+---
+
+## 📄 License
+
+[MIT](LICENSE)
+
+---
+
+<div align="center">
+
+**满纸荒唐言，一把辛酸泪。**  
+**都云作者痴，谁解其中味。**
+
+</div>

@@ -30,35 +30,45 @@ function App() {
 
   if (state.gameScreen === 'menu') {
     return (
-      <MenuScreen
-        onStart={startGame}
-        onGallery={goToGallery}
-        hasSave={hasSave}
-        onContinue={handleContinue}
-      />
+      <div key="menu" className="animate-fade-in">
+        <MenuScreen
+          onStart={startGame}
+          onGallery={goToGallery}
+          hasSave={hasSave}
+          onContinue={handleContinue}
+        />
+      </div>
     );
   }
 
   if (state.gameScreen === 'gallery') {
     return (
-      <GalleryScreen
-        unlockedEndings={state.unlockedEndings}
-        onBack={goToMenu}
-      />
+      <div key="gallery" className="animate-fade-in">
+        <GalleryScreen
+          unlockedEndings={state.unlockedEndings}
+          onBack={goToMenu}
+        />
+      </div>
     );
   }
 
   if (state.gameScreen === 'ending') {
     return (
-      <EndingScreen
-        state={state}
-        onGallery={goToGallery}
-        onMenu={goToMenu}
-      />
+      <div key="ending" className="animate-fade-in">
+        <EndingScreen
+          state={state}
+          onGallery={goToGallery}
+          onMenu={goToMenu}
+        />
+      </div>
     );
   }
 
-  return <GameScreen engine={engine} />;
+  return (
+    <div key="game" className="animate-fade-in">
+      <GameScreen engine={engine} />
+    </div>
+  );
 }
 
 export default App;

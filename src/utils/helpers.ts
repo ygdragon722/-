@@ -79,6 +79,14 @@ export function applyReward(state: GameState, reward: Record<string, number | un
   if (reward.talent !== undefined) updates.talent = Math.min(1000, state.talent + reward.talent);
   if (reward.silver !== undefined) updates.silver = state.silver + reward.silver;
 
+  if (reward.items) {
+    const nextInventory = { ...state.inventory };
+    for (const [itemId, qty] of Object.entries(reward.items)) {
+      nextInventory[itemId] = (nextInventory[itemId] || 0) + qty;
+    }
+    updates.inventory = nextInventory;
+  }
+
   const nextAffection: Affection = { ...state.affection };
   let affectionChanged = false;
 

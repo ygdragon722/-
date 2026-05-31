@@ -7,7 +7,7 @@ interface Props {
 
 export default function GalleryScreen({ unlockedEndings, onBack }: Props) {
   return (
-    <div className="min-h-screen bg-stone-900 p-8 flex flex-col items-center relative text-stone-200 font-serif">
+    <div className="min-h-screen bg-stone-900 p-4 md:p-8 flex flex-col items-center relative text-stone-200 font-serif">
       <div className="w-full max-w-5xl relative z-10">
         <div className="flex justify-between items-center border-b-2 border-stone-700 pb-4 mb-8">
           <h2 className="text-4xl text-amber-500 tracking-widest">太虚幻境 · MBTI 档案</h2>

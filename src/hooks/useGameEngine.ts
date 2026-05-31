@@ -2,11 +2,12 @@ import { useReducer, useCallback, useEffect, useRef } from 'react';
 import type { GameState, ActionType, EventChoice, Weather } from '../types/game';
 import { gameReducer, initialState, MAX_DAYS } from '../store/gameReducer';
 import { HEROINES } from '../data/heroines';
-import { NPCS } from '../data/npcs';
 import { EVENT_DB } from '../data/events';
 import { WEATHERS } from '../data/weathers';
 import { LOCATIONS } from '../data/locations';
 import { ITEMS } from '../data/items';
+import { pickRandomEvent } from '../data/randomEvents';
+import { pickExploreEvent } from '../data/exploreEvents';
 import { calculateEnding, addLog, checkRequirements } from '../utils/helpers';
 
 const SAVE_KEY = 'redchamber_save_v2';
@@ -129,6 +130,55 @@ export function useGameEngine(): GameEngine {
     }
 
     // Check fixed events
+    if (newDay === 5 && !current.isSick) {
+      dispatch({
+        type: 'LOAD_SAVE',
+        payload: {
+          day: newDay,
+          timeStep: newStep,
+          weather: nextWeather,
+          silver: nextSilver,
+          mood: nextMood,
+          logs: nextLogs,
+          currentEvent: {
+            req: 0,
+            isRandomEvent: true,
+            character: { id: 'system', name: '系统提示', mbti: '系统', avatar: '📜', bg: 'bg-amber-50', border: 'border-amber-400' },
+            text: '【初入大观园】\n你已在园中生活了数日，渐渐习惯了这里的生活节奏。袭人提醒你：每日读书、游园、与姐妹们相处，都要兼顾。心情太低会病倒，银两不足也会寸步难行。\n\n（第25天似乎会有大事发生，请做好准备）',
+            choices: [
+              { text: '铭记于心 (获得 100 两安家费)', reward: { silver: 100, mood: 10 }, reply: '你点点头，将袭人的话记在心里。', action: 'close_random_event' },
+            ],
+          },
+        },
+      });
+      return;
+    }
+
+    if (newDay === 10 && !current.isSick) {
+      dispatch({
+        type: 'LOAD_SAVE',
+        payload: {
+          day: newDay,
+          timeStep: newStep,
+          weather: nextWeather,
+          silver: nextSilver,
+          mood: nextMood,
+          logs: nextLogs,
+          currentEvent: {
+            req: 0,
+            isRandomEvent: true,
+            character: { id: 'fengjie', name: '王熙凤', mbti: 'ENTJ', avatar: '💄', bg: 'bg-red-50', border: 'border-red-400' },
+            text: '（账房）王熙凤翻着账本，抬头瞥了你一眼："宝兄弟，这个月的园子维护费该交了。看在老祖宗的面上，收你 80 两。"\n\n【例行公事】：大户人家子弟也要为家族出力。',
+            choices: [
+              { text: '爽快交钱 (80 两)', req: { silver: 80 }, cost: { silver: 80 }, reward: { mood: 5 }, reply: '王熙凤满意地收起银子："这才像贾家的爷们。"', action: 'close_random_event' },
+              { text: '讨价还价 (心情 -10)', cost: { mood: 10 }, reward: {}, reply: '王熙凤冷笑："这点银子也拿不出？传出去让人笑话。"你只好灰溜溜地走了。', action: 'close_random_event' },
+            ],
+          },
+        },
+      });
+      return;
+    }
+
     if (newDay === 15 && !current.hasTriggeredPoetry && !current.isSick) {
       dispatch({
         type: 'LOAD_SAVE',
@@ -231,51 +281,13 @@ export function useGameEngine(): GameEngine {
 
   const triggerRandomEvent = useCallback(() => {
     const current = stateRef.current;
-    const rand = Math.random();
+    const eventTemplate = pickRandomEvent(current);
+    if (!eventTemplate) return;
 
-    if (rand < 0.4) {
-      const requiredTalent = Math.min(100, 20 + current.day * 2);
-      dispatch({
-        type: 'SET_EVENT',
-        payload: {
-          req: 0,
-          isRandomEvent: true,
-          character: NPCS.jiazheng,
-          text: `（书房）贾政(${NPCS.jiazheng.mbti})派人将你叫去考较学问："我来考考你《大学》。"\n\n【考验】：才学需达到 ${requiredTalent} 才能应对。`,
-          choices: [
-            { text: '对答如流 (需才学达标)', req: { talent: requiredTalent }, reward: { silver: 150, mood: 20 }, reply: '贾政点点头："还算没全荒废，拿些银子去买书。"', action: 'close_random_event' },
-            { text: '支支吾吾 (心情大幅下降)', cost: { mood: 40 }, reward: {}, reply: '贾政大怒："业精于勤荒于嬉！请家法！"你挨了一顿板子。', action: 'close_random_event' },
-          ],
-        },
-      });
-    } else if (rand < 0.7) {
-      dispatch({
-        type: 'SET_EVENT',
-        payload: {
-          req: 0,
-          isRandomEvent: true,
-          character: NPCS.jiamu,
-          text: `（荣庆堂）贾母(${NPCS.jiamu.mbti})见你进来，笑得合不拢嘴："我的乖孙儿，快来看看是不是瘦了？"`,
-          choices: [
-            { text: '提供 ESFJ 需要的情绪共鸣', reward: { silver: 100, mood: 20 }, reply: '贾母十分欢喜，赏了你些碎银子。', action: 'close_random_event' },
-          ],
-        },
-      });
-    } else {
-      dispatch({
-        type: 'SET_EVENT',
-        payload: {
-          req: 0,
-          isRandomEvent: true,
-          character: NPCS.zhao,
-          text: `（回廊）你不小心撞见赵姨娘(${NPCS.zhao.mbti})，她阴阳怪气地讽刺了你几句。`,
-          choices: [
-            { text: '不理会她 (心情 -15)', cost: { mood: 15 }, reply: '你懒得跟 ESTP 计较，但还是觉得晦气。', action: 'close_random_event' },
-            { text: '花钱打发 (消耗 50 银两)', cost: { silver: 50 }, reply: '你丢给她碎银子，她立刻换了谄媚的笑脸走了。', action: 'close_random_event' },
-          ],
-        },
-      });
-    }
+    dispatch({
+      type: 'SET_EVENT',
+      payload: eventTemplate.getEvent(current),
+    });
   }, []);
 
   const handleAction = useCallback((actionType: ActionType) => {
@@ -433,6 +445,28 @@ export function useGameEngine(): GameEngine {
       const nextMood = Math.min(100, Math.max(0, current.mood + gainMood));
       const weatherText = current.weather.id === 'sunny' ? '(阳光明媚，心情大好)' : current.weather.id === 'rainy' ? '(细雨弄湿了衣摆，有些心烦)' : '';
       const locName = LOCATIONS[locationId]?.name || '未知地点';
+
+      // 30% 概率触发探索事件
+      if (Math.random() < 0.3) {
+        const exploreTemplate = pickExploreEvent(current);
+        if (exploreTemplate) {
+          dispatch({
+            type: 'LOAD_SAVE',
+            payload: {
+              mood: nextMood,
+              logs: addLog(current.logs, `你在${locName}闲逛，遇到了一些趣事...`),
+            },
+          });
+          setTimeout(() => {
+            dispatch({
+              type: 'SET_EVENT',
+              payload: exploreTemplate.getEvent(current, locName),
+            });
+          }, 0);
+          return;
+        }
+      }
+
       const msg = `你在${locName}闲逛了半日。${weatherText} 心情 ${gainMood >= 0 ? '+' : ''}${gainMood}`;
 
       dispatch({

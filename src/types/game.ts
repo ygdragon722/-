@@ -56,6 +56,7 @@ export interface ChoiceReward {
   affection_xiren?: number;
   affection_qingwen?: number;
   affection_miaoyu?: number;
+  items?: Record<string, number>;
 }
 
 export interface ChoiceCost {

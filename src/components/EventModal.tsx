@@ -13,7 +13,7 @@ export default function EventModal({ state, onChoice }: Props) {
   return (
     <div className="absolute inset-0 z-10 bg-black/60 backdrop-blur-sm p-4 md:p-8 flex items-center justify-center">
       <div
-        className={`w-full h-full max-h-[480px] ${currentEvent.character?.bg || 'bg-white'} border-2 ${
+        className={`w-full max-w-2xl max-h-[90vh] md:max-h-[480px] ${currentEvent.character?.bg || 'bg-white'} border-2 ${
           currentEvent.character?.border || 'border-stone-400'
         } rounded-xl shadow-2xl flex flex-col overflow-hidden animate-scale-in`}
       >
@@ -35,17 +35,17 @@ export default function EventModal({ state, onChoice }: Props) {
           </div>
         </div>
 
-        <div className="p-6 flex-grow overflow-y-auto flex gap-6 items-start">
+        <div className="p-4 md:p-6 flex-grow overflow-y-auto flex flex-col md:flex-row gap-4 md:gap-6 items-start">
           {currentEvent.character?.avatar && (
             <div
-              className={`w-24 h-24 md:w-32 md:h-32 shrink-0 rounded-lg border-2 ${
+              className={`w-20 h-20 md:w-32 md:h-32 shrink-0 rounded-lg border-2 ${
                 currentEvent.character?.border || 'border-stone-400'
-              } bg-white flex flex-col items-center justify-center shadow-inner`}
+              } bg-white flex flex-col items-center justify-center shadow-inner mx-auto md:mx-0`}
             >
-              <span className="text-5xl md:text-6xl">{currentEvent.character.avatar}</span>
+              <span className="text-4xl md:text-6xl">{currentEvent.character.avatar}</span>
             </div>
           )}
-          <p className="text-lg leading-relaxed whitespace-pre-wrap font-medium text-stone-800 mt-2">
+          <p className="text-base md:text-lg leading-relaxed whitespace-pre-wrap font-medium text-stone-800 mt-0 md:mt-2">
             {currentEvent.text}
           </p>
         </div>

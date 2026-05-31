@@ -187,6 +187,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         nextState = { ...nextState, silver: nextState.silver + choice.reward.silver };
       }
 
+      if (choice.reward?.items) {
+        const nextInventory = { ...nextState.inventory };
+        for (const [itemId, qty] of Object.entries(choice.reward.items)) {
+          nextInventory[itemId] = (nextInventory[itemId] || 0) + qty;
+        }
+        nextState = { ...nextState, inventory: nextInventory };
+      }
+
       const nextAffection = { ...nextState.affection };
       let affectionChanged = false;
       if (choice.reward?.affection_daiyu !== undefined) { nextAffection.daiyu += choice.reward.affection_daiyu; affectionChanged = true; }

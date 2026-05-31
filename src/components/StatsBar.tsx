@@ -9,7 +9,7 @@ export default function StatsBar({ state }: Props) {
   const { day, timeStep, weather, talent, mood, silver, isSick, maxDays } = state;
 
   return (
-    <div className="bg-stone-900 text-stone-100 p-4 flex flex-wrap justify-between items-center border-b-4 border-red-800 gap-4">
+    <div className="bg-stone-900 text-stone-100 p-3 md:p-4 flex flex-wrap justify-between items-center border-b-4 border-red-800 gap-2 md:gap-4">
       <div className="flex items-center gap-4">
         <div className="text-xl font-bold flex flex-col md:flex-row md:items-baseline gap-2">
           <div>

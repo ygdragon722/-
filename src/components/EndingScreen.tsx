@@ -18,9 +18,9 @@ export default function EndingScreen({ state, onGallery, onMenu }: Props) {
         <h2 className="text-4xl text-red-500 font-bold mb-4">{endingData.title}</h2>
         <p className="text-xl leading-relaxed text-stone-300 font-serif mb-8">{endingData.desc}</p>
 
-        <div className="grid grid-cols-3 md:grid-cols-7 gap-2 my-8 bg-stone-900 border border-stone-700 p-6 rounded-lg text-sm font-bold">
-          <div className="text-blue-400 col-span-3 md:col-span-2">才学: {talent}</div>
-          <div className="text-yellow-500 col-span-3 md:col-span-2">银两: {silver}</div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-7 gap-2 my-8 bg-stone-900 border border-stone-700 p-4 md:p-6 rounded-lg text-sm font-bold">
+          <div className="text-blue-400 col-span-2 sm:col-span-3 md:col-span-2">才学: {talent}</div>
+          <div className="text-yellow-500 col-span-2 sm:col-span-3 md:col-span-2">银两: {silver}</div>
           <div className="text-pink-400 md:col-start-1">黛玉: {affection.daiyu}</div>
           <div className="text-blue-400">宝钗: {affection.baochai}</div>
           <div className="text-amber-400">湘云: {affection.xiangyun}</div>

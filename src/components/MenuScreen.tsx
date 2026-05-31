@@ -12,7 +12,7 @@ export default function MenuScreen({ onStart, onGallery, hasSave, onContinue }: 
       <div className="z-10 text-center space-y-12">
         <div>
           <h1
-            className="text-6xl md:text-7xl font-serif text-red-600 mb-6 tracking-[0.3em] drop-shadow-2xl"
+            className="text-5xl sm:text-6xl md:text-7xl font-serif text-red-600 mb-6 tracking-[0.2em] sm:tracking-[0.3em] drop-shadow-2xl"
             style={{ textShadow: '2px 4px 6px rgba(0,0,0,0.8)' }}
           >
             红楼幻梦
@@ -20,7 +20,7 @@ export default function MenuScreen({ onStart, onGallery, hasSave, onContinue }: 
           <p className="text-xl tracking-widest text-stone-400 font-light">大观园群芳谱 · 终极完整版</p>
         </div>
 
-        <div className="flex flex-col gap-6 w-64 mx-auto">
+        <div className="flex flex-col gap-4 md:gap-6 w-full max-w-xs px-4 mx-auto">
           {hasSave && (
             <button
               onClick={onContinue}

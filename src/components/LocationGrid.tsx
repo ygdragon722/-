@@ -42,7 +42,7 @@ export default function LocationGrid({ state, onExplore }: Props) {
                   {loc.icon}
                 </div>
                 <h3 className="font-bold text-stone-800 text-base md:text-lg mb-1">{loc.name}</h3>
-                <p className="text-[10px] md:text-xs text-stone-500 text-center mb-3 h-8">{loc.desc}</p>
+                <p className="text-[10px] md:text-xs text-stone-500 text-center mb-3 min-h-[2rem]">{loc.desc}</p>
 
                 {heroinesInLoc.length > 0 ? (
                   <div className="mt-auto flex flex-col items-center w-full gap-1">
