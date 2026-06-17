@@ -3,7 +3,10 @@ import { WEATHERS } from '../data/weathers';
 import { calculateEnding, addLog } from '../utils/helpers';
 
 export const MAX_DAYS = 30;
-export const TIME_LABELS = ['上午', '下午', '晚上'];
+export const MAX_ACTION_POINTS = 5;
+// 行动点 5→0 对应的时辰标签（索引即 actionPoints 当前值）
+export const ACTION_POINT_LABELS = ['入夜', '酉时·傍晚', '申时·下午', '午时·正午', '辰时·上午', '卯时·清晨'];
+export const TIME_LABELS = ['上午', '下午', '晚上']; // 向后兼容，保留不删
 export const HEROINE_IDS: HeroineId[] = ['daiyu', 'baochai', 'xiangyun', 'tanchun', 'xiren', 'qingwen', 'miaoyu'];
 
 export const HEROINE_TONES: Record<HeroineId, ChoiceTone> = {
@@ -35,6 +38,7 @@ export function normalizeGameState(state: GameState): GameState {
     ...state,
     stamina: state.stamina ?? 100,
     prestige: state.prestige ?? 0,
+    actionPoints: state.actionPoints ?? MAX_ACTION_POINTS,
     completedEvents: Array.isArray(state.completedEvents) ? state.completedEvents : [],
     mbtiInsight: {
       ...initialMbtiInsight,
@@ -54,6 +58,7 @@ export const initialState: GameState = {
   silver: 500,
   stamina: 100,
   prestige: 0,
+  actionPoints: MAX_ACTION_POINTS,
   inventory: { rouge: 1, book_collection: 1 },
   currentView: 'garden',
   affection: {

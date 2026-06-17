@@ -1,6 +1,6 @@
 import { useReducer, useCallback, useEffect, useRef } from 'react';
 import type { GameState, ActionType, EventChoice, GameEvent, Heroine, Weather } from '../types/game';
-import { gameReducer, initialState, MAX_DAYS } from '../store/gameReducer';
+import { gameReducer, initialState, MAX_DAYS, MAX_ACTION_POINTS } from '../store/gameReducer';
 import { HEROINES } from '../data/heroines';
 import { EVENT_DB } from '../data/events';
 import { WEATHERS } from '../data/weathers';
@@ -187,6 +187,7 @@ export function useGameEngine(): GameEngine {
               { text: '铭记于心 (获得 100 两安家费)', reward: { silver: 100, mood: 10 }, reply: '你点点头，将袭人的话记在心里。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -212,6 +213,7 @@ export function useGameEngine(): GameEngine {
               { text: '讨价还价 (心情 -10)', cost: { mood: 10 }, reward: {}, reply: '王熙凤冷笑："这点银子也拿不出？传出去让人笑话。"你只好灰溜溜地走了。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -259,6 +261,7 @@ export function useGameEngine(): GameEngine {
             text: "（秋爽斋）探春发起了『海棠诗社』，众姐妹各自吟诗作对，此刻正等着你赋诗一首以作压轴！\n\n才学越高越能独立发挥；与某位姐妹理解深厚，也可借她之力解围。",
             choices: poetryChoices,
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -284,6 +287,7 @@ export function useGameEngine(): GameEngine {
               { text: '转手送人："我正巧想给林妹妹带些东西。" (宝钗好感 -5)', reward: { affection_baochai: -5, mood: 5 }, reply: '宝钗神色一滞，随即恢复如常："也好，她身子弱，正该补补。"她转身进了里屋，再没出来。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -310,6 +314,7 @@ export function useGameEngine(): GameEngine {
               { text: '去给晴雯提个醒，让她近期收敛些', reward: { affection_qingwen: -5, mood: 5 }, reply: '晴雯翻了个白眼："我行得正坐得直，收敛什么！"她倒是没往心里去，你却多了几分担忧。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -336,6 +341,7 @@ export function useGameEngine(): GameEngine {
               { text: '花钱堵嘴：私下打点王善保家的 (消耗 100 两)', cost: { silver: 100 }, reward: { mood: 5 }, reply: '你托人往王善保家的那边走了个礼，那边消停了几日。但不知能撑多久。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -362,6 +368,7 @@ export function useGameEngine(): GameEngine {
               { text: '把 200 两交给探春统筹调度 (消耗 200 两)', cost: { silver: 200 }, reward: { affection_tanchun: 10, talent: 15 }, reply: '探春眼中闪过一丝感激："难得你识大局。这钱我替你用在刀刃上。"', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -387,6 +394,7 @@ export function useGameEngine(): GameEngine {
               { text: '默默离去："我知道了。"', reward: { mood: -5 }, reply: '你握着那枝梅，站在庵门外，雪落在肩头。门内传来一声极轻的叹息，像是梅瓣落在雪上的声音。', action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -428,6 +436,7 @@ export function useGameEngine(): GameEngine {
               { text: '无能为力：眼看晴雯被拖走', cost: { mood: 100 }, reward: { affection_qingwen: -100 }, reply: failReply, action: 'close_random_event' },
             ],
           },
+          actionPoints: MAX_ACTION_POINTS,
         },
       });
       return;
@@ -460,6 +469,7 @@ export function useGameEngine(): GameEngine {
                 },
               ],
             },
+            actionPoints: MAX_ACTION_POINTS,
           },
         });
         return;
@@ -476,6 +486,7 @@ export function useGameEngine(): GameEngine {
         silver: nextSilver,
         mood: nextMood,
         logs: nextLogs,
+        actionPoints: MAX_ACTION_POINTS,
       },
     });
   }, []);
@@ -490,6 +501,20 @@ export function useGameEngine(): GameEngine {
       payload: eventTemplate.getEvent(current),
     });
   }, []);
+
+  const spendActionPoints = useCallback((cost: number) => {
+    const current = stateRef.current;
+    const newPoints = Math.max(0, current.actionPoints - cost);
+
+    if (newPoints > 0) {
+      dispatch({
+        type: 'LOAD_SAVE',
+        payload: { actionPoints: newPoints },
+      });
+    } else {
+      advanceTime(1, 0);
+    }
+  }, [advanceTime]);
 
   const handleAction = useCallback((actionType: ActionType) => {
     const current = stateRef.current;
@@ -622,12 +647,19 @@ export function useGameEngine(): GameEngine {
       },
     });
 
-    advanceTime();
+    const ACTION_COSTS: Record<string, number> = {
+      school: 1,
+      study_hard: 2,
+      rest: 1,
+      poem: 2,
+      pawn: 1,
+    };
+    spendActionPoints(ACTION_COSTS[actionType] ?? 1);
 
     if (Math.random() < 0.15 && actionType !== 'rest') {
       setTimeout(() => triggerRandomEvent(), 0);
     }
-  }, [advanceTime, triggerRandomEvent]);
+  }, [advanceTime, triggerRandomEvent, spendActionPoints]);
 
   const exploreLocation = useCallback((locationId: string) => {
     const current = stateRef.current;
@@ -750,13 +782,13 @@ export function useGameEngine(): GameEngine {
           logs: addLog(current.logs, msg),
         },
       });
-      advanceTime();
+      spendActionPoints(1); // 叙话消耗 1 行动点
 
       if (Math.random() < 0.15) {
         setTimeout(() => triggerRandomEvent(), 0);
       }
     }
-  }, [advanceTime, triggerRandomEvent]);
+  }, [advanceTime, triggerRandomEvent, spendActionPoints]);
 
   const moveTo = useCallback((locationId: string) => {
     dispatch({ type: 'MOVE_TO', payload: locationId });

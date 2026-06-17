@@ -3,6 +3,7 @@ import type { ActionType, GameState, HeroineId } from '../types/game';
 import { HEROINES } from '../data/heroines';
 import { LOCATIONS } from '../data/locations';
 import { getDreambookRoute } from '../utils/dreambook';
+import { MAX_ACTION_POINTS } from '../store/gameReducer';
 
 const GARDEN_BG = './assets/ui/menu-bg.webp';
 
@@ -134,7 +135,7 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
     [location.id],
   );
 
-  const { isSick, talent } = state;
+  const { isSick, talent, actionPoints } = state;
 
   return (
     <div className="absolute inset-0 z-20">
@@ -190,6 +191,22 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
 
       {/* 右侧竖排行动菜单 */}
       <aside className="absolute right-5 top-1/2 z-30 w-60 -translate-y-1/2 space-y-2">
+        <div className="mb-3 rounded-lg border border-white/15 bg-stone-950/70 px-3 py-2 text-center backdrop-blur-sm">
+          <div className="mb-1 text-[10px] tracking-widest text-stone-400">今日行动力</div>
+          <div className="flex items-center justify-center gap-1.5">
+            {Array.from({ length: MAX_ACTION_POINTS }).map((_, i) => (
+              <span
+                key={i}
+                className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                  i < actionPoints ? 'bg-amber-300' : 'bg-stone-700'
+                }`}
+              />
+            ))}
+          </div>
+          <div className="mt-1 text-xs font-bold text-amber-200">
+            {actionPoints > 0 ? `还剩 ${actionPoints} 点` : '今日已尽，明日再来'}
+          </div>
+        </div>
         {heroines.map((h) => {
           const route = getDreambookRoute(state, h.id as HeroineId);
           const hint = route.nextReady

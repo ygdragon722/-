@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { GameEngine } from '../hooks/useGameEngine';
 import type { ActionType, GameState } from '../types/game';
-import { TIME_LABELS } from '../store/gameReducer';
+import { ACTION_POINT_LABELS } from '../store/gameReducer';
 import AvgLayer from './AvgLayer';
 import LocationStage from './LocationStage';
 import ShopPanel from './ShopPanel';
@@ -17,7 +17,7 @@ interface Props {
 }
 
 function TopHud({ state }: { state: GameState }) {
-  const { day, timeStep, weather, talent, mood, silver, stamina, prestige, isSick } = state;
+  const { day, actionPoints, weather, talent, mood, silver, stamina, prestige, isSick } = state;
 
   const prevRef = useRef({ talent, mood, silver, stamina, prestige });
   const [deltas, setDeltas] = useState({ talent: 0, mood: 0, silver: 0, stamina: 0, prestige: 0 });
@@ -122,7 +122,7 @@ function TopHud({ state }: { state: GameState }) {
           <span className="text-stone-400">第</span>
           <span className="font-bold text-amber-300">{day}</span>
           <span className="text-stone-400">天</span>
-          <span className="ml-1 text-stone-300">{TIME_LABELS[timeStep]}</span>
+          <span className="ml-1 text-stone-300">{ACTION_POINT_LABELS[actionPoints]}</span>
           <span className="mx-1 text-stone-500">·</span>
           <span className={weather.color}>{weather.icon}</span>
           <span className={weather.color}>{weather.name}</span>

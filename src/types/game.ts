@@ -149,6 +149,7 @@ export interface GameState {
   silver: number;
   stamina: number;
   prestige: number;
+  actionPoints: number;
   inventory: Inventory;
   currentView: GameView;
   affection: Affection;
