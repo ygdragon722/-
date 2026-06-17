@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef, useCallback } from 'react';
 import type { ActionType, GameState, HeroineId } from '../types/game';
 import { HEROINES } from '../data/heroines';
 import { LOCATIONS } from '../data/locations';
@@ -12,6 +12,31 @@ interface Props {
   onExplore: (locationId: string) => void;
   onMove: (locationId: string) => void;
   onAction: (action: ActionType) => void;
+}
+
+type PresenceStatus = 'present' | 'absent' | 'searched_found' | 'searched_not_found';
+
+// 在场判定逻辑：基础60% + 好感每10点+5%（上限85%） - 行动点≤1时-20%，最低30%
+function rollPresence(affection: number, actionPoints: number, bonus = 0): boolean {
+  let prob = 0.6 + Math.floor(affection / 10) * 0.05 + bonus;
+  if (actionPoints <= 1) prob -= 0.2;
+  prob = Math.max(0.3, Math.min(0.95, prob));
+  return Math.random() < prob;
+}
+
+// 根据当前地点和状态生成初始在场判定
+function buildPresenceMap(
+  heroines: Array<typeof HEROINES[keyof typeof HEROINES]>,
+  affection: GameState['affection'],
+  actionPoints: number,
+): Record<string, PresenceStatus> {
+  const map: Record<string, PresenceStatus> = {};
+  heroines.forEach((h) => {
+    const aff = affection[h.id as keyof typeof affection] ?? 0;
+    const present = rollPresence(aff, actionPoints);
+    map[h.id] = present ? 'present' : 'absent';
+  });
+  return map;
 }
 
 // 右侧竖排行动菜单按钮
@@ -127,6 +152,12 @@ function MoveModal({
 
 export default function LocationStage({ state, onExplore, onMove, onAction }: Props) {
   const [moveOpen, setMoveOpen] = useState(false);
+  // 转场状态：idle → out（黑幕降下）→ in（黑幕抬起）→ idle
+  const [curtain, setCurtain] = useState<'idle' | 'out' | 'in'>('idle');
+  // 人物入场可见性
+  const [charVisible, setCharVisible] = useState(false);
+  const pendingLocationRef = useRef<string | null>(null);
+
   const location = LOCATIONS[state.currentLocation] ?? LOCATIONS.yihong;
   const bgImage = location.image || GARDEN_BG;
 
@@ -136,6 +167,58 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
   );
 
   const { isSick, talent, actionPoints } = state;
+
+  // 用 lazy initializer 在首次渲染时计算在场状态（组件因 key 变化重新挂载时会重新计算）
+  const [presenceMap, setPresenceMap] = useState<Record<string, PresenceStatus>>(() =>
+    buildPresenceMap(heroines, state.affection, actionPoints),
+  );
+
+  // 组件挂载时触发入场动画
+  useEffect(() => {
+    const t = setTimeout(() => setCharVisible(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+
+  // 移步：先降黑幕，再切换地点，再揭幕
+  const handleMove = useCallback((locationId: string) => {
+    pendingLocationRef.current = locationId;
+    setCurtain('out');
+  }, []);
+
+  useEffect(() => {
+    if (curtain === 'out') {
+      const t = setTimeout(() => {
+        if (pendingLocationRef.current) {
+          onMove(pendingLocationRef.current);
+          pendingLocationRef.current = null;
+        }
+        setCurtain('in');
+      }, 380);
+      return () => clearTimeout(t);
+    }
+    if (curtain === 'in') {
+      const t = setTimeout(() => setCurtain('idle'), 420);
+      return () => clearTimeout(t);
+    }
+  }, [curtain, onMove]);
+
+  // 入内寻访：消耗1行动点，以+30% bonus重新判定
+  const handleSearch = useCallback((heroineId: string) => {
+    onAction('search');
+    const h = HEROINES[heroineId];
+    if (!h) return;
+    const affection = state.affection[h.id as keyof typeof state.affection] ?? 0;
+    const found = rollPresence(affection, actionPoints, 0.3);
+    setPresenceMap((prev) => ({
+      ...prev,
+      [heroineId]: found ? 'searched_found' : 'searched_not_found',
+    }));
+    if (found) {
+      setCharVisible(false);
+      const t = setTimeout(() => setCharVisible(true), 120);
+      return () => clearTimeout(t);
+    }
+  }, [onAction, actionPoints, state.affection]);
 
   return (
     <div className="absolute inset-0 z-20">
@@ -147,6 +230,12 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
         onError={(e) => ((e.target as HTMLImageElement).src = GARDEN_BG)}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-transparent to-stone-950/40" />
+
+      {/* 转场黑幕 */}
+      <div
+        className="absolute inset-0 z-50 bg-stone-950 pointer-events-none transition-opacity duration-[380ms]"
+        style={{ opacity: curtain === 'out' ? 1 : curtain === 'in' ? 0 : 0 }}
+      />
 
       {/* 地点名牌（左上 · 曲径通幽式） */}
       <div className="absolute left-5 top-20 z-30">
@@ -160,32 +249,86 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
       <div className="absolute bottom-28 left-0 right-72 top-0 z-20 flex items-end justify-center">
         {heroines.length > 0 ? (
           <div className="flex items-end gap-2">
-            {heroines.map((h) => (
-              <button
-                key={h.id}
-                onClick={() => onExplore(location.id)}
-                disabled={isSick}
-                className="group relative cursor-pointer disabled:cursor-not-allowed"
-                title={`与${h.name}叙话`}
-              >
-                {h.portrait ? (
-                  <img
-                    src={h.portrait}
-                    alt={h.name}
-                    className="h-[60vh] max-h-[460px] w-auto object-contain object-bottom drop-shadow-[0_4px_40px_rgba(0,0,0,0.9)] transition group-hover:brightness-110"
-                    onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                  />
-                ) : (
-                  <div className="flex h-40 w-32 items-end justify-center rounded-lg bg-white/5 pb-4 text-5xl">{h.avatar}</div>
-                )}
-                <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full border border-amber-300/40 bg-stone-950/85 px-3 py-0.5 text-xs font-bold tracking-widest text-amber-200 opacity-0 transition group-hover:opacity-100">
-                  {h.name} · 叙话
-                </span>
-              </button>
-            ))}
+            {heroines.map((h, i) => {
+              const status = presenceMap[h.id] ?? 'present';
+              const isPresent = status === 'present' || status === 'searched_found';
+              const isSearchedFound = status === 'searched_found';
+              const isSearchedNotFound = status === 'searched_not_found';
+
+              if (!isPresent) {
+                return (
+                  <div
+                    key={h.id}
+                    className="flex flex-col items-center justify-center rounded-lg border border-white/10 bg-stone-950/60 px-6 py-8 backdrop-blur-sm"
+                    style={{
+                      opacity: charVisible ? 1 : 0,
+                      transition: `opacity 0.45s ease ${i * 80}ms`,
+                    }}
+                  >
+                    <p className="mb-4 text-sm text-stone-300">
+                      {isSearchedNotFound
+                        ? '今日缘悭，无缘得见。'
+                        : `${h.name}的闺房烛影隐约，今日不在院中。`}
+                    </p>
+                    {!isSearchedNotFound && actionPoints > 0 && (
+                      <button
+                        onClick={() => handleSearch(h.id)}
+                        disabled={isSick}
+                        className="rounded border border-amber-300/50 px-4 py-2 text-sm text-amber-200 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        入内寻访 · 费一点行动力
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div key={h.id} className="flex flex-col items-center">
+                  {isSearchedFound && (
+                    <span className="mb-1 rounded-full border border-amber-300/40 bg-stone-950/70 px-3 py-0.5 text-[10px] font-bold tracking-widest text-amber-300">
+                      在内室寻得 {h.name}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => onExplore(location.id)}
+                    disabled={isSick}
+                    className="group relative cursor-pointer disabled:cursor-not-allowed"
+                    style={{
+                      opacity: charVisible ? 1 : 0,
+                      transform: charVisible ? 'translateY(0)' : 'translateY(24px)',
+                      transition: `opacity 0.45s ease ${i * 80}ms, transform 0.45s ease ${i * 80}ms`,
+                    }}
+                    title={`与${h.name}叙话`}
+                  >
+                    {h.portrait ? (
+                      <img
+                        src={h.portrait}
+                        alt={h.name}
+                        className="h-[60vh] max-h-[460px] w-auto object-contain object-bottom drop-shadow-[0_4px_40px_rgba(0,0,0,0.9)] transition group-hover:brightness-110"
+                        onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                      />
+                    ) : (
+                      <div className="flex h-40 w-32 items-end justify-center rounded-lg bg-white/5 pb-4 text-5xl">{h.avatar}</div>
+                    )}
+                    <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 rounded-full border border-amber-300/40 bg-stone-950/85 px-3 py-0.5 text-xs font-bold tracking-widest text-amber-200 opacity-0 transition group-hover:opacity-100">
+                      {h.name} · 叙话
+                    </span>
+                  </button>
+                </div>
+              );
+            })}
           </div>
         ) : (
-          <p className="mb-32 text-stone-300/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">此处清静无人，正好静心。</p>
+          <p
+            className="mb-32 text-stone-300/80 drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]"
+            style={{
+              opacity: charVisible ? 1 : 0,
+              transition: 'opacity 0.45s ease 0.1s',
+            }}
+          >
+            此处清静无人，正好静心。
+          </p>
         )}
       </div>
 
@@ -208,6 +351,8 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
           </div>
         </div>
         {heroines.map((h) => {
+          const status = presenceMap[h.id] ?? 'present';
+          const isPresent = status === 'present' || status === 'searched_found';
           const route = getDreambookRoute(state, h.id as HeroineId);
           const hint = route.nextReady
             ? `可推进：${route.nextEvent?.title || '新剧情'}`
@@ -217,17 +362,17 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
           return (
             <ActionButton
               key={h.id}
-              label={`叙话 · ${h.name}`}
-              mark="话"
+              label={isPresent ? `叙话 · ${h.name}` : `寻访 · ${h.name}`}
+              mark={isPresent ? '话' : '寻'}
               hint={`♥${state.affection[h.id as keyof typeof state.affection]} ${hint}`}
-              highlight={route.nextReady}
-              disabled={isSick}
+              highlight={route.nextReady && isPresent}
+              disabled={isSick || !isPresent}
               onClick={() => onExplore(location.id)}
             />
           );
         })}
 
-        <ActionButton label="移步他处" mark="移" hint="前往大观园其他地点" onClick={() => setMoveOpen(true)} />
+        <ActionButton label="移步他处" mark="移" hint="前往大观园其他地点" onClick={() => setMoveOpen(true)} disabled={curtain !== 'idle'} />
 
         <div className="!my-3 border-t border-white/10" />
 
@@ -244,7 +389,7 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
       </aside>
 
       {moveOpen && (
-        <MoveModal currentLocation={location.id} onMove={onMove} onClose={() => setMoveOpen(false)} />
+        <MoveModal currentLocation={location.id} onMove={(id) => { setMoveOpen(false); handleMove(id); }} onClose={() => setMoveOpen(false)} />
       )}
     </div>
   );

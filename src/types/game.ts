@@ -133,7 +133,7 @@ export interface EndingData {
 
 export type GameScreen = 'menu' | 'playing' | 'ending' | 'gallery';
 export type GameView = 'garden' | 'shop' | 'bag';
-export type ActionType = 'school' | 'study_hard' | 'rest' | 'poem' | 'pawn';
+export type ActionType = 'school' | 'study_hard' | 'rest' | 'poem' | 'pawn' | 'search';
 
 export interface Inventory {
   [itemId: string]: number;

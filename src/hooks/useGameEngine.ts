@@ -569,6 +569,9 @@ export function useGameEngine(): GameEngine {
         }
         break;
       }
+      case 'search':
+        msg = '你在园中四处寻访，希望能寻得佳人一面。';
+        break;
       case 'pawn':
         costMood = 20;
         costStamina = 10;
@@ -653,6 +656,7 @@ export function useGameEngine(): GameEngine {
       rest: 1,
       poem: 2,
       pawn: 1,
+      search: 1,
     };
     spendActionPoints(ACTION_COSTS[actionType] ?? 1);
 
