@@ -14,7 +14,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-emerald-200',
     avatar: '🪷',
     location: 'xiaoxiang',
-    portrait: './assets/characters/daiyu-portrait.webp',
+    portrait: './assets/characters/daiyu-portrait.png',
   },
   baochai: {
     id: 'baochai',
