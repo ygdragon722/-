@@ -9,18 +9,19 @@ export default function StatsBar({ state }: Props) {
   const { day, timeStep, weather, talent, mood, silver, isSick, maxDays } = state;
 
   return (
-    <div className="bg-stone-900 text-stone-100 p-3 md:p-4 flex flex-wrap justify-between items-center border-b-4 border-red-800 gap-2 md:gap-4">
-      <div className="flex items-center gap-4">
-        <div className="text-xl font-bold flex flex-col md:flex-row md:items-baseline gap-2">
+    <div className="bg-stone-900 text-stone-100 p-3 md:p-4 flex flex-col md:flex-row md:flex-wrap md:justify-between md:items-center border-b-4 border-red-800 gap-3 md:gap-4">
+      <div className="flex items-center gap-4 min-w-0">
+        <div className="text-xl font-bold flex flex-col sm:flex-row sm:items-baseline gap-2 min-w-0">
           <div>
             第 <span className="text-amber-500">{day}</span> 天
             <span className="text-stone-400 text-sm ml-1">/ {maxDays}</span>
             <span className="ml-2 text-stone-400 text-lg">({TIME_LABELS[timeStep]})</span>
           </div>
           <div
-            className={`text-base md:ml-4 flex items-center gap-1 bg-stone-800 px-3 py-1 rounded-full border border-stone-700 ${weather.color} relative group cursor-help`}
+            className={`text-sm md:text-base sm:ml-4 flex items-center gap-1 bg-stone-800 px-3 py-1 rounded-full border border-stone-700 ${weather.color} relative group cursor-help w-fit max-w-full`}
           >
-            <span>{weather.icon}</span> {weather.name}
+            <span>{weather.icon}</span>
+            <span className="truncate">{weather.name}</span>
             <span className="absolute -bottom-8 left-0 text-[10px] w-max bg-stone-800 text-stone-200 px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity z-10 border border-stone-600 shadow-lg">
               {weather.effect}
             </span>
@@ -31,7 +32,7 @@ export default function StatsBar({ state }: Props) {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-4 md:gap-8 text-sm md:text-base font-medium">
+      <div className="grid grid-cols-3 gap-2 md:flex md:flex-wrap md:gap-8 text-sm md:text-base font-medium w-full md:w-auto">
         <div className="flex flex-col items-center">
           <span className="text-stone-400 text-xs">才学</span>
           <span className="text-blue-400 text-xl">{talent}</span>

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Private third-party reference material. Do not commit copyrighted game data.
+references/original-game/

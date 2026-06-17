@@ -1,9 +1,46 @@
-import type { GameState, GameAction } from '../types/game';
+import type { ChoiceTone, GameState, GameAction, HeroineId, MbtiInsight } from '../types/game';
 import { WEATHERS } from '../data/weathers';
 import { calculateEnding, addLog } from '../utils/helpers';
 
 export const MAX_DAYS = 30;
 export const TIME_LABELS = ['上午', '下午', '晚上'];
+export const HEROINE_IDS: HeroineId[] = ['daiyu', 'baochai', 'xiangyun', 'tanchun', 'xiren', 'qingwen', 'miaoyu'];
+
+export const HEROINE_TONES: Record<HeroineId, ChoiceTone> = {
+  daiyu: 'empathy',
+  baochai: 'planning',
+  xiangyun: 'play',
+  tanchun: 'reform',
+  xiren: 'care',
+  qingwen: 'rebel',
+  miaoyu: 'aesthetic',
+};
+
+const initialMbtiInsight: MbtiInsight = {
+  daiyu: 0,
+  baochai: 0,
+  xiangyun: 0,
+  tanchun: 0,
+  xiren: 0,
+  qingwen: 0,
+  miaoyu: 0,
+};
+
+function isHeroineId(id: string | undefined): id is HeroineId {
+  return Boolean(id && HEROINE_IDS.includes(id as HeroineId));
+}
+
+export function normalizeGameState(state: GameState): GameState {
+  return {
+    ...state,
+    completedEvents: Array.isArray(state.completedEvents) ? state.completedEvents : [],
+    mbtiInsight: {
+      ...initialMbtiInsight,
+      ...(state.mbtiInsight || {}),
+    },
+    storyFlags: state.storyFlags || {},
+  };
+}
 
 export const initialState: GameState = {
   day: 1,
@@ -12,7 +49,7 @@ export const initialState: GameState = {
   talent: 20,
   mood: 60,
   silver: 500,
-  inventory: { rouge: 1 },
+  inventory: { rouge: 1, book_collection: 1 },
   currentView: 'garden',
   affection: {
     daiyu: 0,
@@ -30,8 +67,14 @@ export const initialState: GameState = {
   maxDays: MAX_DAYS,
   endingData: null,
   unlockedEndings: [],
+  completedEvents: [],
+  mbtiInsight: initialMbtiInsight,
+  storyFlags: {},
   hasTriggeredPoetry: false,
   hasTriggeredRaid: false,
+  hasTriggeredDay18: false,
+  hasTriggeredDay20: false,
+  hasTriggeredDay22: false,
 };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -159,6 +202,16 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'APPLY_CHOICE': {
       const choice = action.payload;
+      const eventId = state.currentEvent?.id;
+
+      if (eventId && state.completedEvents.includes(eventId)) {
+        return {
+          ...state,
+          currentEvent: null,
+          logs: addLog(state.logs, '【梦册】这段往事已记入梦册，不再重复结算。'),
+        };
+      }
+
       let nextState = { ...state };
 
       if (choice.cost?.silver !== undefined) {
@@ -208,6 +261,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         nextState = { ...nextState, affection: nextAffection };
       }
 
+      const characterId = state.currentEvent?.character?.id;
+      if (choice.tone && isHeroineId(characterId) && HEROINE_TONES[characterId] === choice.tone) {
+        const nextInsight = {
+          ...nextState.mbtiInsight,
+          [characterId]: Math.min(100, nextState.mbtiInsight[characterId] + 5),
+        };
+        nextState = { ...nextState, mbtiInsight: nextInsight };
+      }
+
       if (choice.specialAction === 'recover_sick') {
         nextState = {
           ...nextState,
@@ -220,6 +282,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         } else {
           nextState = { ...nextState, logs: addLog(nextState.logs, `[${state.currentEvent?.character?.name || '未知'}] ${choice.reply}`) };
         }
+      }
+
+      if (eventId) {
+        nextState = {
+          ...nextState,
+          completedEvents: nextState.completedEvents.includes(eventId)
+            ? nextState.completedEvents
+            : [...nextState.completedEvents, eventId],
+        };
       }
 
       nextState = { ...nextState, currentEvent: null };
@@ -321,7 +392,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     case 'LOAD_SAVE': {
-      return { ...state, ...action.payload };
+      return normalizeGameState({ ...state, ...action.payload });
     }
 
     case 'SET_UNLOCKED_ENDINGS': {

@@ -9,10 +9,10 @@ export default function Sidebar({ state, onAction }: Props) {
   const { isSick, talent, logs } = state;
 
   return (
-    <div className="w-full md:w-1/4 border-r border-stone-200 bg-[#faf8f5] p-6 flex flex-col">
-      <h2 className="text-xl font-bold mb-6 text-stone-800 border-b-2 border-stone-300 pb-2">内务日程</h2>
+    <div className="w-full xl:w-[260px] border-r border-stone-200 bg-[#faf8f5] p-4 md:p-6 flex flex-col order-2 xl:order-1 min-h-0">
+      <h2 className="text-xl font-bold mb-4 md:mb-6 text-stone-800 border-b-2 border-stone-300 pb-2">内务日程</h2>
 
-      <div className="space-y-4 flex-grow overflow-y-auto pb-4 pr-2">
+      <div className="space-y-3 md:space-y-4 flex-grow overflow-y-auto pb-4 pr-2">
         <button
           onClick={() => onAction('school')}
           disabled={isSick}
@@ -42,7 +42,7 @@ export default function Sidebar({ state, onAction }: Props) {
 
         <div className="pt-2 border-t border-stone-200 mt-4">
           <h3 className="text-xs font-bold text-stone-400 mb-3 uppercase tracking-wider">市井营生</h3>
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             <button
               onClick={() => onAction('poem')}
               disabled={isSick || talent < 30}
@@ -63,7 +63,7 @@ export default function Sidebar({ state, onAction }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-stone-300 shrink-0">
+      <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-stone-300 shrink-0">
         <h3 className="text-sm font-bold text-stone-500 mb-2">系统通知</h3>
         <div className="h-28 overflow-y-auto text-xs text-stone-600 space-y-1">
           {logs.map((log, i) => (

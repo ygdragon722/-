@@ -14,6 +14,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-emerald-200',
     avatar: '🪷',
     location: 'xiaoxiang',
+    portrait: './assets/characters/daiyu-portrait.webp',
   },
   baochai: {
     id: 'baochai',
@@ -28,6 +29,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-blue-200',
     avatar: '🪹',
     location: 'hengwu',
+    portrait: './assets/characters/baochai-portrait.webp',
   },
   xiangyun: {
     id: 'xiangyun',
@@ -42,6 +44,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-rose-200',
     avatar: '🌺',
     location: 'qinfang',
+    portrait: './assets/characters/xiangyun-portrait.webp',
   },
   tanchun: {
     id: 'tanchun',
@@ -56,6 +59,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-purple-200',
     avatar: '📜',
     location: 'qiushuang',
+    portrait: './assets/characters/tanchun-portrait.webp',
   },
   xiren: {
     id: 'xiren',
@@ -70,6 +74,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-stone-200',
     avatar: '🪡',
     location: 'yihong',
+    portrait: './assets/characters/xiren-portrait.webp',
   },
   qingwen: {
     id: 'qingwen',
@@ -84,6 +89,7 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-red-200',
     avatar: '🪭',
     location: 'yihong',
+    portrait: './assets/characters/qingwen-portrait.webp',
   },
   miaoyu: {
     id: 'miaoyu',
@@ -98,5 +104,6 @@ export const HEROINES: Record<string, Heroine> = {
     border: 'border-slate-300',
     avatar: '🍵',
     location: 'longcui',
+    portrait: './assets/characters/miaoyu-portrait.webp',
   },
 };

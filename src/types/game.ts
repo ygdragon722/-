@@ -11,13 +11,21 @@ export interface Heroine {
   border: string;
   avatar: string;
   location: string;
+  portrait?: string;
+  fullBody?: string;
 }
+
+export type HeroineId = 'daiyu' | 'baochai' | 'xiangyun' | 'tanchun' | 'xiren' | 'qingwen' | 'miaoyu';
+export type ChoiceTone = 'empathy' | 'planning' | 'play' | 'reform' | 'care' | 'rebel' | 'aesthetic';
+export type StoryStage = 1 | 2 | 3 | 4 | 5;
+export type MbtiInsight = Record<HeroineId, number>;
 
 export interface NPC {
   id: string;
   name: string;
   mbti: string;
   avatar: string;
+  portrait?: string;
 }
 
 export interface Location {
@@ -26,6 +34,8 @@ export interface Location {
   desc: string;
   icon: string;
   bg: string;
+  image?: string;
+  thumbnail?: string;
 }
 
 export interface Weather {
@@ -74,6 +84,7 @@ export interface ChoiceReq {
 
 export interface EventChoice {
   text: string;
+  tone?: ChoiceTone;
   req?: ChoiceReq;
   cost?: ChoiceCost;
   reward?: ChoiceReward;
@@ -83,10 +94,15 @@ export interface EventChoice {
 }
 
 export interface GameEvent {
+  id?: string;
+  title?: string;
+  stage?: StoryStage;
+  hint?: string;
   req: number;
   text: string;
   choices: EventChoice[];
   isRandomEvent?: boolean;
+  image?: string;
 }
 
 export interface Affection {
@@ -110,6 +126,7 @@ export interface EndingData {
   id: string;
   title: string;
   desc: string;
+  scene?: string;
 }
 
 export type GameScreen = 'menu' | 'playing' | 'ending' | 'gallery';
@@ -137,8 +154,15 @@ export interface GameState {
   maxDays: number;
   endingData: EndingData | null;
   unlockedEndings: string[];
+  completedEvents: string[];
+  mbtiInsight: MbtiInsight;
+  routeFocus?: HeroineId;
+  storyFlags: Record<string, boolean>;
   hasTriggeredPoetry: boolean;
   hasTriggeredRaid: boolean;
+  hasTriggeredDay18: boolean;
+  hasTriggeredDay20: boolean;
+  hasTriggeredDay22: boolean;
 }
 
 export type GameAction =
