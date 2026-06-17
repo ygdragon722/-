@@ -305,7 +305,14 @@ export default function LocationStage({ state, onExplore, onMove, onAction }: Pr
                       <img
                         src={h.portrait}
                         alt={h.name}
-                        className="h-[60vh] max-h-[460px] w-auto object-contain object-bottom drop-shadow-[0_4px_40px_rgba(0,0,0,0.9)] transition group-hover:brightness-110"
+                        className="h-[60vh] max-h-[460px] w-auto object-contain object-bottom transition group-hover:brightness-110"
+                        style={{
+                          mixBlendMode: 'multiply',
+                          filter: 'sepia(0.15) saturate(0.85) brightness(0.95)',
+                          maskImage: 'linear-gradient(to top, transparent 0%, black 14%, black 88%, transparent 100%), linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
+                          maskComposite: 'intersect',
+                          WebkitMaskImage: 'linear-gradient(to top, transparent 0%, black 14%, black 88%, transparent 100%)',
+                        }}
                         onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                       />
                     ) : (
