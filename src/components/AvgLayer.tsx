@@ -205,6 +205,22 @@ export default function AvgLayer({ state, onChoice }: Props) {
           </div>
 
           {/* 选项 */}
+          {/* 当所有选项均不可用时显示离去按钮，防止卡死 */}
+          {currentEvent.choices.every((c) => {
+            const noSilver = c.cost?.silver && silver < c.cost.silver;
+            const noTalent = c.req?.talent && talent < c.req.talent;
+            const noItem = c.req?.item && !(inventory[c.req.item] > 0);
+            return noSilver || noTalent || noItem;
+          }) && (
+            <button
+              onClick={() => onChoice({ text: '暂且离去', reward: {} })}
+              className="mb-2 w-full rounded border border-stone-600/50 bg-stone-900/60 px-4 py-2.5 text-left text-sm text-stone-500 transition-all hover:border-stone-500 hover:text-stone-400"
+            >
+              <span className="mr-3 font-mono text-xs font-bold text-stone-700">↩</span>
+              暂且离去（条件不足，改日再来）
+            </button>
+          )}
+
           <div className="space-y-1.5">
             {currentEvent.choices.map((choice, idx) => {
               const canAffordSilver = !choice.cost?.silver || silver >= choice.cost.silver;

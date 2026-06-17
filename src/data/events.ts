@@ -155,6 +155,12 @@ export const EVENT_DB: Record<string, GameEvent[]> = {
           reward: { affection_baochai: 20 },
           reply: '宝钗微微感动："这等贵重之物你也舍得拿来，你竟也懂得体贴人了。"',
         },
+        {
+          text: '敷衍应付："宝姐姐说的是，我记下了。" (好感 -2)',
+          tone: 'play',
+          reward: { affection_baochai: -2, mood: 5 },
+          reply: '宝钗淡淡看你一眼，低头继续看账本，再不多言。',
+        },
       ],
     },
     {
@@ -361,6 +367,12 @@ export const EVENT_DB: Record<string, GameEvent[]> = {
           cost: { item: 'watch' },
           reward: { affection_tanchun: 20, silver: 150 },
           reply: '探春把玩着怀表，大喜过望："有了此物，定能让那些下人按时按点当差！二哥哥，这权当是我给你的分红。"',
+        },
+        {
+          text: '口头支持："三妹妹所虑甚是，我定然支持。" (好感 +3)',
+          tone: 'care',
+          reward: { affection_tanchun: 3 },
+          reply: '探春点点头，神色略显疲倦："你肯听进去便好，改日若备得礼物，再来。"',
         },
       ],
     },
@@ -669,6 +681,12 @@ export const EVENT_DB: Record<string, GameEvent[]> = {
           cost: { item: 'tea' },
           reward: { affection_miaoyu: 20, mood: 20 },
           reply: '妙玉接过茶匣，眼中闪过一丝讶异："难得你竟能寻来此物。罢了，你我便在此赏梅对弈一局吧。"',
+        },
+        {
+          text: '空手而来，只是赏梅 (好感 +2)',
+          tone: 'play',
+          reward: { affection_miaoyu: 2, mood: 5 },
+          reply: '妙玉淡淡扫了你一眼："空手来此，倒也自在。"说罢转身进了庵中，未再搭话。',
         },
       ],
     },
