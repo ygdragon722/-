@@ -59,6 +59,8 @@ export interface ChoiceReward {
   mood?: number;
   talent?: number;
   silver?: number;
+  stamina?: number;
+  prestige?: number;
   affection_daiyu?: number;
   affection_baochai?: number;
   affection_xiangyun?: number;
@@ -145,6 +147,8 @@ export interface GameState {
   talent: number;
   mood: number;
   silver: number;
+  stamina: number;
+  prestige: number;
   inventory: Inventory;
   currentView: GameView;
   affection: Affection;

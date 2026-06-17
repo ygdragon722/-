@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { GameEngine } from '../hooks/useGameEngine';
 import type { ActionType, GameState } from '../types/game';
 import { TIME_LABELS } from '../store/gameReducer';
@@ -17,46 +17,153 @@ interface Props {
 }
 
 function TopHud({ state }: { state: GameState }) {
-  const { day, timeStep, weather, talent, mood, silver, isSick, maxDays } = state;
+  const { day, timeStep, weather, talent, mood, silver, stamina, prestige, isSick } = state;
+
+  const prevRef = useRef({ talent, mood, silver, stamina, prestige });
+  const [deltas, setDeltas] = useState({ talent: 0, mood: 0, silver: 0, stamina: 0, prestige: 0 });
+  const timerRef = useRef<Record<string, number>>({});
+
+  useEffect(() => {
+    const prev = prevRef.current;
+    const next = { talent, mood, silver, stamina, prestige };
+    const nextDeltas: typeof deltas = { talent: 0, mood: 0, silver: 0, stamina: 0, prestige: 0 };
+    let hasChange = false;
+
+    (Object.keys(next) as Array<keyof typeof next>).forEach((key) => {
+      const delta = next[key] - prev[key];
+      if (delta !== 0) {
+        nextDeltas[key] = delta;
+        hasChange = true;
+        window.clearTimeout(timerRef.current[key]);
+        timerRef.current[key] = window.setTimeout(() => {
+          setDeltas((d) => ({ ...d, [key]: 0 }));
+        }, 1500);
+      }
+    });
+
+    if (hasChange) {
+      setDeltas(nextDeltas);
+      prevRef.current = next;
+    }
+  }, [talent, mood, silver, stamina, prestige]);
+
+  const moodColor = mood <= 20 ? 'text-red-300' : mood >= 80 ? 'text-emerald-300' : 'text-amber-300';
+
+  const stats: Array<{
+    key: keyof typeof deltas;
+    label: string;
+    value: number;
+    color: string;
+    icon: React.ReactNode;
+  }> = [
+    {
+      key: 'talent',
+      label: '才学',
+      value: talent,
+      color: 'text-blue-300',
+      icon: (
+        <svg className="h-4 w-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      ),
+    },
+    {
+      key: 'mood',
+      label: '心情',
+      value: mood,
+      color: moodColor,
+      icon: (
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'silver',
+      label: '银两',
+      value: silver,
+      color: 'text-yellow-300',
+      icon: (
+        <svg className="h-4 w-4 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <circle cx="12" cy="12" r="9" strokeLinecap="round" strokeLinejoin="round" />
+          <text x="12" y="16" textAnchor="middle" fontSize="10" fill="currentColor" stroke="none">两</text>
+        </svg>
+      ),
+    },
+    {
+      key: 'stamina',
+      label: '体力',
+      value: stamina,
+      color: 'text-orange-300',
+      icon: (
+        <svg className="h-4 w-4 text-orange-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
+    },
+    {
+      key: 'prestige',
+      label: '名望',
+      value: prestige,
+      color: 'text-violet-300',
+      icon: (
+        <svg className="h-4 w-4 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.175 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+        </svg>
+      ),
+    },
+  ];
 
   return (
-    <header className="absolute left-0 right-0 top-0 z-30 px-5 py-4">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-lg border border-white/20 bg-stone-950/72 px-4 py-3 text-stone-100 shadow-xl backdrop-blur-md">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="font-bold text-lg whitespace-nowrap">
-            第 <span className="text-amber-300">{day}</span> 天
-            <span className="ml-1 text-sm text-stone-300">/ {maxDays}</span>
-            <span className="ml-3 text-sm text-stone-300">{TIME_LABELS[timeStep]}</span>
-          </div>
-          <div className={`hidden sm:flex items-center gap-1 rounded-full border border-white/15 bg-stone-900/70 px-3 py-1 text-sm ${weather.color}`}>
-            <span>{weather.icon}</span>
-            <span>{weather.name}</span>
-          </div>
-          {isSick && (
-            <span className="rounded bg-red-700 px-2 py-1 text-xs font-bold text-white animate-pulse">
-              卧病在床
-            </span>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-3 text-center text-xs sm:flex sm:gap-5 sm:text-sm">
-          <div>
-            <div className="text-stone-400">才学</div>
-            <div className="font-bold text-blue-300">{talent}</div>
-          </div>
-          <div>
-            <div className="text-stone-400">心情</div>
-            <div className={`font-bold ${mood <= 20 ? 'text-red-300' : mood >= 80 ? 'text-emerald-300' : 'text-amber-300'}`}>
-              {mood}
-            </div>
-          </div>
-          <div>
-            <div className="text-stone-400">银两</div>
-            <div className="font-bold text-yellow-300">{silver}</div>
-          </div>
+    <>
+      {/* 左上角日期天气徽章 */}
+      <div className="absolute top-4 left-5 z-30">
+        <div className="flex items-center gap-2 rounded-lg border border-white/15 bg-stone-950/72 px-3 py-1.5 text-sm text-stone-200 shadow-lg backdrop-blur-md">
+          <span className="text-stone-400">第</span>
+          <span className="font-bold text-amber-300">{day}</span>
+          <span className="text-stone-400">天</span>
+          <span className="ml-1 text-stone-300">{TIME_LABELS[timeStep]}</span>
+          <span className="mx-1 text-stone-500">·</span>
+          <span className={weather.color}>{weather.icon}</span>
+          <span className={weather.color}>{weather.name}</span>
         </div>
       </div>
-    </header>
+
+      {/* 卧病提示 */}
+      {isSick && (
+        <div className="absolute top-20 left-1/2 z-30 -translate-x-1/2">
+          <span className="rounded bg-red-700 px-3 py-1 text-xs font-bold text-white animate-pulse shadow-lg">
+            卧病在床
+          </span>
+        </div>
+      )}
+
+      {/* 底部属性横栏 */}
+      <div className="absolute bottom-20 left-1/2 z-30 w-[min(640px,calc(100%-2rem))] -translate-x-1/2">
+        <div className="flex items-center justify-between gap-2 rounded-lg border border-white/15 bg-stone-950/78 px-4 py-2.5 shadow-2xl backdrop-blur-md">
+          {stats.map((s) => (
+            <div key={s.key} className="flex flex-col items-center gap-0.5 min-w-[3.5rem]">
+              <div className="flex items-center gap-1">
+                {s.icon}
+                <span className="text-[10px] text-stone-400">{s.label}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className={`text-base font-bold ${s.color}`}>{s.value}</span>
+                {deltas[s.key] !== 0 && (
+                  <span
+                    className={`text-xs font-bold animate-pulse ${
+                      deltas[s.key] > 0 ? 'text-emerald-400' : 'text-red-400'
+                    }`}
+                  >
+                    {deltas[s.key] > 0 ? '+' : ''}{deltas[s.key]}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }
 

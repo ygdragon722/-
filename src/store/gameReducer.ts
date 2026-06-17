@@ -33,6 +33,8 @@ function isHeroineId(id: string | undefined): id is HeroineId {
 export function normalizeGameState(state: GameState): GameState {
   return {
     ...state,
+    stamina: state.stamina ?? 100,
+    prestige: state.prestige ?? 0,
     completedEvents: Array.isArray(state.completedEvents) ? state.completedEvents : [],
     mbtiInsight: {
       ...initialMbtiInsight,
@@ -50,6 +52,8 @@ export const initialState: GameState = {
   talent: 20,
   mood: 60,
   silver: 500,
+  stamina: 100,
+  prestige: 0,
   inventory: { rouge: 1, book_collection: 1 },
   currentView: 'garden',
   affection: {
@@ -239,6 +243,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       }
       if (choice.reward?.silver !== undefined) {
         nextState = { ...nextState, silver: nextState.silver + choice.reward.silver };
+      }
+      if (choice.reward?.stamina !== undefined) {
+        nextState = { ...nextState, stamina: Math.min(100, Math.max(0, nextState.stamina + choice.reward.stamina)) };
+      }
+      if (choice.reward?.prestige !== undefined) {
+        nextState = { ...nextState, prestige: Math.max(0, nextState.prestige + choice.reward.prestige) };
       }
 
       if (choice.reward?.items) {

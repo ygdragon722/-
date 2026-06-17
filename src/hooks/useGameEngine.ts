@@ -499,6 +499,9 @@ export function useGameEngine(): GameEngine {
     let gainTalent = 0;
     let gainMood = 0;
     let gainSilver = 0;
+    let costStamina = 0;
+    let gainStamina = 0;
+    let gainPrestige = 0;
     let msg = '';
 
     const hasBuff = current.mood >= 80;
@@ -511,34 +514,69 @@ export function useGameEngine(): GameEngine {
     switch (actionType) {
       case 'school':
         costMood = 10;
+        costStamina = 15;
+        gainPrestige = 3;
         gainTalent = Math.floor(5 * talentMultiplier);
-        msg = `在族学听讲半日。才学 +${gainTalent}，心情 -${costMood}。${current.weather.id === 'rainy' ? '(雨声阵阵，让人更能静下心来)' : ''}`;
+        msg = `在族学听讲半日。才学 +${gainTalent}，心情 -${costMood}，体力 -${costStamina}，名望 +${gainPrestige}。${current.weather.id === 'rainy' ? '(雨声阵阵，让人更能静下心来)' : ''}`;
         break;
       case 'study_hard':
         costMood = 15;
+        costStamina = 25;
+        gainPrestige = 5;
         gainTalent = Math.floor(8 * talentMultiplier);
-        msg = `闭门苦读半日。才学 +${gainTalent}，心情 -${costMood}。${current.weather.id === 'rainy' ? '(阴雨天真是读书的好时候)' : ''}`;
+        msg = `闭门苦读半日。才学 +${gainTalent}，心情 -${costMood}，体力 -${costStamina}，名望 +${gainPrestige}。${current.weather.id === 'rainy' ? '(阴雨天真是读书的好时候)' : ''}`;
         break;
       case 'rest':
         gainMood = 20;
-        msg = `在厢房美美地睡了一个午觉。心情 +${gainMood}。`;
+        gainStamina = 30;
+        msg = `在厢房美美地睡了一个午觉。心情 +${gainMood}，体力 +${gainStamina}。`;
         break;
       case 'poem': {
         costMood = 15;
+        costStamina = 20;
         const successChance = Math.min(0.9, current.talent / 100);
         if (Math.random() < successChance) {
           gainSilver = 50 + Math.floor(current.talent / 2);
-          msg = `你灵感迸发，写下一首佳作卖予书坊！银两 +${gainSilver}，心情 -${costMood}。`;
+          gainPrestige = 8;
+          msg = `你灵感迸发，写下一首佳作卖予书坊！银两 +${gainSilver}，心情 -${costMood}，体力 -${costStamina}，名望 +${gainPrestige}。`;
         } else {
-          msg = `你枯坐半日，未能憋出好句，反倒惹得心烦意乱。心情 -${costMood}。`;
+          msg = `你枯坐半日，未能憋出好句，反倒惹得心烦意乱。心情 -${costMood}，体力 -${costStamina}。`;
         }
         break;
       }
       case 'pawn':
         costMood = 20;
+        costStamina = 10;
+        gainPrestige = -5;
         gainSilver = 150;
-        msg = `让茗烟去当铺死当旧物。银两 +${gainSilver}，心情 -${costMood}。`;
+        msg = `让茗烟去当铺死当旧物。银两 +${gainSilver}，心情 -${costMood}，体力 -${costStamina}，名望 ${gainPrestige}。`;
         break;
+    }
+
+    const nextStamina = Math.min(100, Math.max(0, current.stamina - costStamina + gainStamina));
+
+    if (nextStamina <= 0 && actionType !== 'rest') {
+      dispatch({
+        type: 'LOAD_SAVE',
+        payload: {
+          stamina: 0,
+          prestige: Math.max(0, current.prestige + gainPrestige),
+          currentEvent: {
+            req: 0,
+            character: { id: 'system', name: '系统提示', mbti: '系统', avatar: '💤', bg: 'bg-amber-50' },
+            text: '【精力耗尽】\n你连日操劳，终于体力透支，不得不在床上好好休养半日。',
+            choices: [
+              {
+                text: '老老实实歇一歇（恢复 60 体力，推进半天）',
+                reward: { stamina: 60 },
+                reply: '养足精神，继续。',
+                specialAction: 'recover_sick',
+              },
+            ],
+          },
+        },
+      });
+      return;
     }
 
     if (current.mood - costMood <= 0 && actionType !== 'rest') {
@@ -546,6 +584,8 @@ export function useGameEngine(): GameEngine {
         type: 'LOAD_SAVE',
         payload: {
           mood: 0,
+          stamina: nextStamina,
+          prestige: Math.max(0, current.prestige + gainPrestige),
           isSick: true,
           currentEvent: {
             req: 0,
@@ -568,6 +608,7 @@ export function useGameEngine(): GameEngine {
     const nextTalent = Math.min(1000, current.talent + gainTalent);
     const nextSilver = current.silver + gainSilver;
     const nextMood = Math.min(100, Math.max(0, current.mood - costMood + gainMood));
+    const nextPrestige = Math.max(0, current.prestige + gainPrestige);
 
     dispatch({
       type: 'LOAD_SAVE',
@@ -575,6 +616,8 @@ export function useGameEngine(): GameEngine {
         talent: gainTalent > 0 ? nextTalent : current.talent,
         silver: nextSilver,
         mood: nextMood,
+        stamina: nextStamina,
+        prestige: nextPrestige,
         logs: addLog(current.logs, msg),
       },
     });
@@ -592,6 +635,7 @@ export function useGameEngine(): GameEngine {
 
     let costMood = 0;
     let gainMood = 15;
+    const costStamina = 10;
 
     if (current.weather.id === 'sunny') {
       gainMood += 10;
@@ -600,11 +644,37 @@ export function useGameEngine(): GameEngine {
       costMood = 5;
     }
 
+    const nextStamina = Math.max(0, current.stamina - costStamina);
+
+    if (nextStamina <= 0) {
+      dispatch({
+        type: 'LOAD_SAVE',
+        payload: {
+          stamina: 0,
+          currentEvent: {
+            req: 0,
+            character: { id: 'system', name: '系统提示', mbti: '系统', avatar: '💤', bg: 'bg-amber-50' },
+            text: '【精力耗尽】\n你连日操劳，终于体力透支，不得不在床上好好休养半日。',
+            choices: [
+              {
+                text: '老老实实歇一歇（恢复 60 体力，推进半天）',
+                reward: { stamina: 60 },
+                reply: '养足精神，继续。',
+                specialAction: 'recover_sick',
+              },
+            ],
+          },
+        },
+      });
+      return;
+    }
+
     if (current.mood - costMood <= 0) {
       dispatch({
         type: 'LOAD_SAVE',
         payload: {
           mood: 0,
+          stamina: nextStamina,
           isSick: true,
           currentEvent: {
             req: 0,
@@ -656,6 +726,7 @@ export function useGameEngine(): GameEngine {
             type: 'LOAD_SAVE',
             payload: {
               mood: nextMood,
+              stamina: nextStamina,
               logs: addLog(current.logs, `你在${locName}闲逛，遇到了一些趣事...`),
             },
           });
@@ -669,12 +740,13 @@ export function useGameEngine(): GameEngine {
         }
       }
 
-      const msg = `你在${locName}闲逛了半日。${weatherText} 心情 ${gainMood >= 0 ? '+' : ''}${gainMood}`;
+      const msg = `你在${locName}闲逛了半日。${weatherText} 心情 ${gainMood >= 0 ? '+' : ''}${gainMood}，体力 -${costStamina}`;
 
       dispatch({
         type: 'LOAD_SAVE',
         payload: {
           mood: nextMood,
+          stamina: nextStamina,
           logs: addLog(current.logs, msg),
         },
       });
