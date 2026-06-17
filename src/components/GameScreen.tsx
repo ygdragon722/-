@@ -334,7 +334,7 @@ export default function GameScreen({ engine }: Props) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(28,25,23,0.42)_72%)]" />
 
       <TopHud state={state} />
-      <LocationStage state={state} onExplore={exploreLocation} onMove={moveTo} onAction={handleAction} />
+      <LocationStage key={state.currentLocation} state={state} onExplore={exploreLocation} onMove={moveTo} onAction={handleAction} />
 
       <Drawer
         view={activeDrawer}
