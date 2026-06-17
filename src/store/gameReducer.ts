@@ -45,6 +45,7 @@ export function normalizeGameState(state: GameState): GameState {
 export const initialState: GameState = {
   day: 1,
   timeStep: 0,
+  currentLocation: 'yihong',
   weather: WEATHERS[0],
   talent: 20,
   mood: 60,
@@ -305,6 +306,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case 'EXPLORE_LOCATION': {
       // This should be handled in the hook with logic calculation
       return state;
+    }
+
+    case 'MOVE_TO': {
+      return { ...state, currentLocation: action.payload };
     }
 
     case 'BUY_ITEM': {

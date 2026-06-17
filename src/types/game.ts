@@ -140,6 +140,7 @@ export interface Inventory {
 export interface GameState {
   day: number;
   timeStep: number;
+  currentLocation: string;
   weather: Weather;
   talent: number;
   mood: number;
@@ -177,6 +178,7 @@ export type GameAction =
   | { type: 'APPLY_CHOICE'; payload: EventChoice }
   | { type: 'HANDLE_ACTION'; payload: ActionType }
   | { type: 'EXPLORE_LOCATION'; payload: string }
+  | { type: 'MOVE_TO'; payload: string }
   | { type: 'BUY_ITEM'; payload: string }
   | { type: 'USE_ITEM'; payload: string }
   | { type: 'RECOVER_SICK' }

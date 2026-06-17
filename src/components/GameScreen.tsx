@@ -1,11 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { GameEngine } from '../hooks/useGameEngine';
-import type { ActionType, GameState, HeroineId } from '../types/game';
-import { HEROINES } from '../data/heroines';
-import { LOCATIONS } from '../data/locations';
+import type { ActionType, GameState } from '../types/game';
 import { TIME_LABELS } from '../store/gameReducer';
-import { getDreambookRoute } from '../utils/dreambook';
 import AvgLayer from './AvgLayer';
+import LocationStage from './LocationStage';
 import ShopPanel from './ShopPanel';
 import BagPanel from './BagPanel';
 import DreambookPanel from './DreambookPanel';
@@ -217,93 +215,8 @@ function Drawer({
   );
 }
 
-function GardenStage({ state, onExplore }: { state: GameState; onExplore: (locationId: string) => void }) {
-  const locations = useMemo(() => Object.values(LOCATIONS), []);
-
-  return (
-    <main className="absolute inset-x-0 bottom-24 top-24 z-20 flex items-center justify-center px-5">
-      <div className="w-full max-w-5xl">
-        <div className="mb-5 text-center text-stone-100 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-          <h1 className="text-4xl font-bold tracking-[0.35em]">大观园</h1>
-          <p className="mt-2 text-sm text-stone-200">择一处前往，或打开梦册查看线索。</p>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {locations.map((location) => {
-            const heroines = Object.values(HEROINES).filter((heroine) => heroine.location === location.id);
-            return (
-              <button
-                key={location.id}
-                onClick={() => onExplore(location.id)}
-                disabled={state.isSick}
-                className="group overflow-hidden rounded-lg border border-white/20 bg-stone-950/54 text-left text-stone-100 shadow-xl backdrop-blur-sm transition hover:-translate-y-1 hover:bg-stone-950/70 hover:shadow-2xl disabled:opacity-50"
-              >
-                <div className="relative h-28 overflow-hidden">
-                  {location.image && (
-                    <img
-                      src={location.image}
-                      alt={location.name}
-                      className="h-full w-full object-cover opacity-85 transition duration-500 group-hover:scale-105"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-transparent" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between gap-3">
-                    <div>
-                      <div className="text-lg font-bold">{location.name}</div>
-                      <div className="text-xs text-stone-200">{location.desc}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-2 p-3">
-                  {heroines.length > 0 ? heroines.map((heroine) => {
-                    const route = getDreambookRoute(state, heroine.id as HeroineId);
-                    const hint = route.nextReady
-                      ? `可推进：${route.nextEvent?.title || '新剧情'}`
-                      : route.nextEvent
-                      ? route.nextNote
-                      : '路线暂告一段落';
-                    return (
-                      <div key={heroine.id} className="flex items-center gap-2 rounded-lg bg-white/10 px-2 py-1.5">
-                        {heroine.portrait ? (
-                          <img
-                            src={heroine.portrait}
-                            alt=""
-                            className="h-7 w-7 rounded-full object-cover object-top border border-white/40"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                            }}
-                          />
-                        ) : (
-                          <span className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center">{heroine.avatar}</span>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center justify-between gap-2 text-xs font-bold">
-                            <span>{heroine.name}</span>
-                            <span>♥ {state.affection[heroine.id as keyof typeof state.affection]}</span>
-                          </div>
-                          <div className="truncate text-[11px] text-stone-300">{hint}</div>
-                        </div>
-                      </div>
-                    );
-                  }) : (
-                    <div className="text-xs text-stone-300">此处暂无人候着。</div>
-                  )}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    </main>
-  );
-}
-
 export default function GameScreen({ engine }: Props) {
-  const { state, handleAction, exploreLocation, buyItem, useItem, handleChoice } = engine;
+  const { state, handleAction, exploreLocation, moveTo, buyItem, useItem, handleChoice } = engine;
   const [activeDrawer, setActiveDrawer] = useState<DrawerView>(null);
   const inventoryCount = Object.values(state.inventory).reduce((total, quantity) => total + quantity, 0);
 
@@ -314,7 +227,7 @@ export default function GameScreen({ engine }: Props) {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_rgba(28,25,23,0.42)_72%)]" />
 
       <TopHud state={state} />
-      <GardenStage state={state} onExplore={exploreLocation} />
+      <LocationStage state={state} onExplore={exploreLocation} onMove={moveTo} onAction={handleAction} />
 
       <Drawer
         view={activeDrawer}

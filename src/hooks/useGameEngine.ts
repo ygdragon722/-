@@ -59,6 +59,7 @@ export interface GameEngine {
   setView: (view: GameState['currentView']) => void;
   handleAction: (actionType: ActionType) => void;
   exploreLocation: (locationId: string) => void;
+  moveTo: (locationId: string) => void;
   buyItem: (itemId: string) => void;
   useItem: (itemId: string) => void;
   handleChoice: (choice: EventChoice) => void;
@@ -685,6 +686,10 @@ export function useGameEngine(): GameEngine {
     }
   }, [advanceTime, triggerRandomEvent]);
 
+  const moveTo = useCallback((locationId: string) => {
+    dispatch({ type: 'MOVE_TO', payload: locationId });
+  }, []);
+
   const buyItem = useCallback((itemId: string) => {
     const item = ITEMS[itemId];
     if (!item) return;
@@ -749,6 +754,7 @@ export function useGameEngine(): GameEngine {
     setView,
     handleAction,
     exploreLocation,
+    moveTo,
     buyItem,
     useItem,
     handleChoice,
