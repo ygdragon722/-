@@ -80,11 +80,13 @@ export default function Opening({ onDone }: Props) {
   // ===== 感知题 =====
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col bg-stone-950 px-6 py-10">
-      <p className="mb-2 text-center text-[17px] tracking-wide text-stone-100">
+      <p className="mb-3 text-center text-[17px] tracking-wide text-stone-100">
         走进赏戏厅，你第一眼注意到的是——
       </p>
-      <p className="mb-8 text-center text-[12px] text-stone-500">
-        （这不改变剧情，只决定你先看见什么）
+      <p className="mb-8 text-center text-[12px] leading-6 text-stone-500">
+        你看人的方式，决定这一路你看见什么、又错过什么。
+        <br />
+        而结局，会照着你的选择，反过来读你一次。
       </p>
 
       <div className="space-y-3">
