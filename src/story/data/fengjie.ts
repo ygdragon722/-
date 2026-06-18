@@ -48,7 +48,7 @@ export const ENC_FENGJIE_D1: Encounter = {
   truthThreshold: 45,
   truth: {
     id: 'truth_fengjie_jiguan',
-    text: '「看戏？我何曾看过戏。你当这鲜花着锦是天上掉的？省下来的、挪出去的、拆东墙补西墙的，桩桩都压在我这袖子里。机关算尽——罢了，外乡丫头，你不懂。」',
+    text: '「看戏？我何曾看过戏。你当这鲜花着锦是天上掉的？省下来的、挪出去的、拆东墙补西墙的，桩桩都压在我这袖子里。机关算尽——罢了，我的宝兄弟，你成日家只在姐妹堆里厮混，这些腌臜账，你不懂，也不必懂。」',
     clueId: 'clue_fengjie_finance',
     verdictEcho: '机关算尽太聪明，反算了卿卿性命',
   },
@@ -59,7 +59,7 @@ export const ENC_FENGJIE_D1: Encounter = {
       playerLine: '「凤姐姐袖里攥的，是什么？」',
       key: 'confront',
       trustDelta: -15,
-      outcome: '她瞬间强势反弹：「外乡来的野丫头，也敢盘问我？」——可她回得太快、太重，那卷东西见不得人。',
+      outcome: '她眉梢一挑，似笑非笑：「哟，今儿宝兄弟怎么也学着盘问起我来了？」——可她回得太快、太重，那卷东西见不得人。',
     },
     {
       id: 'flatter',

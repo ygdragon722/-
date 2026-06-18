@@ -94,8 +94,12 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
 
         <div className="flex-1" />
 
-        {/* 底部浮层：透镜 + 观察 + 选项/结果 */}
-        <div className="bg-gradient-to-t from-stone-950/95 to-stone-950/0 px-5 pb-8 pt-10">
+        {/* 底部浮层：透镜 + 观察 + 选项/结果。done 后限高可滚动，把上半屏的脸留出来 */}
+        <div
+          className={`bg-gradient-to-t from-stone-950 via-stone-950/90 to-stone-950/0 px-5 pb-8 pt-10 ${
+            done ? 'max-h-[58vh] overflow-y-auto' : ''
+          }`}
+        >
           {/* 感知透镜（仅未抉择前显示，观察完即收起） */}
           {!done && (
           <div className="mb-3 flex items-center gap-2">
@@ -116,10 +120,12 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
           </div>
           )}
 
-          {/* 观察文案 */}
-          <p className="mb-4 border-t border-white/15 pt-3 text-[15px] leading-7 text-stone-100 drop-shadow">
-            {observation}
-          </p>
+          {/* 观察文案（仅未抉择前显示，done 后让位给她的反应，避免堆高遮脸） */}
+          {!done && (
+            <p className="mb-4 border-t border-white/15 pt-3 text-[15px] leading-7 text-stone-100 drop-shadow">
+              {observation}
+            </p>
+          )}
 
           {/* 选项 或 结果 */}
           {!done ? (
