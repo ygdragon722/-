@@ -5,13 +5,6 @@ import { useState } from 'react';
 import type { Encounter, NpcDef, Scene, LensKey, Clue } from './types';
 import { applyRead, initTrust, distanceHint, type ReadResult } from './engine';
 
-const LENS_LABELS: Record<LensKey, string> = {
-  N: '直觉',
-  F: '情感',
-  T: '思辨',
-  J: '判断',
-};
-
 interface Props {
   npc: NpcDef;
   scene: Scene;
@@ -100,12 +93,7 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
             done ? 'max-h-[58vh] overflow-y-auto' : ''
           }`}
         >
-          {/* 感知透镜：开场已定，此处仅作不可点的小标记（避免与下方选项抢成两组四选项） */}
-          {!done && lens && (
-            <p className="mb-2 text-[11px] tracking-wide text-amber-200/60">
-              以{LENS_LABELS[lens]}之眼
-            </p>
-          )}
+          {/* 透镜无形起作用：开场定好后，观察文字已因人而异，不再每场提醒（自觉留到结局"反过来读你"） */}
 
           {/* 观察文案（仅未抉择前显示，done 后让位给她的反应，避免堆高遮脸） */}
           {!done && (
