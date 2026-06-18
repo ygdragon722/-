@@ -24,7 +24,7 @@ interface Props {
 
 export default function EncounterView({ npc, scene, encounter, clue, playerLens, onNext, nextLabel = '前往下一幕 →' }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
-  const [lens, setLens] = useState<LensKey | null>(playerLens ?? null);
+  const lens: LensKey | null = playerLens ?? null;
   const [result, setResult] = useState<ReadResult | null>(null);
   const [done, setDone] = useState(false);
 
@@ -100,24 +100,11 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
             done ? 'max-h-[58vh] overflow-y-auto' : ''
           }`}
         >
-          {/* 感知透镜（仅未抉择前显示，观察完即收起） */}
-          {!done && (
-          <div className="mb-3 flex items-center gap-2">
-            <span className="text-[11px] text-stone-400">以何眼观之：</span>
-            {(Object.keys(LENS_LABELS) as LensKey[]).map((k) => (
-              <button
-                key={k}
-                onClick={() => setLens(lens === k ? null : k)}
-                className={`rounded-full border px-2.5 py-0.5 text-[11px] transition ${
-                  lens === k
-                    ? 'border-amber-200 bg-amber-200 text-stone-900'
-                    : 'border-stone-500/60 text-stone-300 hover:border-amber-200/70'
-                }`}
-              >
-                {LENS_LABELS[k]}
-              </button>
-            ))}
-          </div>
+          {/* 感知透镜：开场已定，此处仅作不可点的小标记（避免与下方选项抢成两组四选项） */}
+          {!done && lens && (
+            <p className="mb-2 text-[11px] tracking-wide text-amber-200/60">
+              以{LENS_LABELS[lens]}之眼
+            </p>
           )}
 
           {/* 观察文案（仅未抉择前显示，done 后让位给她的反应，避免堆高遮脸） */}
