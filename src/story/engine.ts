@@ -9,8 +9,21 @@ import type {
   MirrorRecord,
   NpcDef,
   TruthLine,
+  Mbti,
+  LensKey,
 } from './types';
 import { INITIAL_TRUST } from './types';
+
+// 玩家 MBTI → 感知透镜（按气质四分，每类各 4 型，分布均匀）
+//   NF 理想者→N看潜台词 / SF 照顾者→F看情绪 / NT 理性者→T看逻辑 / ST 实干者→J看线索
+export function lensForMbti(m: Mbti): LensKey {
+  const isN = m[1] === 'N';
+  const isF = m[2] === 'F';
+  if (isN && isF) return 'N';
+  if (!isN && isF) return 'F';
+  if (isN && !isF) return 'T';
+  return 'J';
+}
 
 export interface ReadResult {
   approach: ReadApproach;
