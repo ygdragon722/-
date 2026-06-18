@@ -1,26 +1,25 @@
-// 正门：冷开场 → 报名字 → 选型（竖屏移动优先 · 水墨）
+// 正门：冷开场 → 报名字 → 感知题（竖屏移动优先 · 水墨）
 import { useState } from 'react';
-import type { Mbti } from './types';
+import type { LensKey } from './types';
 import { OPENING_BEATS } from './data/opening';
-import { MBTI_LIST } from './data/mbti';
-import { lensForMbti } from './engine';
 
-const LENS_DESC: Record<string, string> = {
-  N: '你会先看见话里的潜台词',
-  F: '你会先察觉对方的情绪',
-  T: '你会先抓住言语的逻辑漏洞',
-  J: '你会先理出线索的脉络',
-};
+// 一道感知题：4个选项各自对应一种观察视角，不提 MBTI
+const SENSE_OPTIONS: { label: string; hint: string; lens: LensKey }[] = [
+  { label: '她的眼睛里有什么', hint: '情绪，那些没说出口的感受', lens: 'F' },
+  { label: '她笑着，但笑没到眼睛里', hint: '潜台词，言语背后真正想说的', lens: 'N' },
+  { label: '她袖里攥着的那卷东西', hint: '逻辑漏洞，哪里对不上', lens: 'T' },
+  { label: '她站的位置和离场方向', hint: '线索脉络，现场信息先整理一遍', lens: 'J' },
+];
 
 interface Props {
-  onDone: (name: string, mbti: Mbti) => void;
+  onDone: (name: string, lens: LensKey) => void;
 }
 
 export default function Opening({ onDone }: Props) {
   const [phase, setPhase] = useState<'cold' | 'name' | 'type'>('cold');
   const [beat, setBeat] = useState(0);
   const [name, setName] = useState('');
-  const [mbti, setMbti] = useState<Mbti | null>(null);
+  const [lens, setLens] = useState<LensKey | null>(null);
 
   const current = OPENING_BEATS[beat];
   const isLastBeat = beat >= OPENING_BEATS.length - 1;
@@ -78,43 +77,40 @@ export default function Opening({ onDone }: Props) {
     );
   }
 
-  // ===== 选型 =====
-  const lens = mbti ? lensForMbti(mbti) : null;
+  // ===== 感知题 =====
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col bg-stone-950 px-6 py-8">
-      <p className="mb-1 text-center text-[15px] text-stone-200">你是怎样一个人？</p>
-      <p className="mb-5 text-center text-[12px] leading-6 text-stone-500">
-        （这不改变剧情，只决定你<span className="text-stone-300">先看见什么</span>）
+    <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col bg-stone-950 px-6 py-10">
+      <p className="mb-2 text-center text-[17px] tracking-wide text-stone-100">
+        走进赏戏厅，你第一眼注意到的是——
+      </p>
+      <p className="mb-8 text-center text-[12px] text-stone-500">
+        （这不改变剧情，只决定你先看见什么）
       </p>
 
-      <div className="grid grid-cols-4 gap-2">
-        {MBTI_LIST.map((m) => (
+      <div className="space-y-3">
+        {SENSE_OPTIONS.map((opt) => (
           <button
-            key={m.code}
-            onClick={() => setMbti(m.code)}
-            className={`flex flex-col items-center rounded-md border px-1 py-2 transition ${
-              mbti === m.code
-                ? 'border-amber-300 bg-amber-200 text-stone-900'
-                : 'border-stone-700 text-stone-300 hover:border-amber-300/60'
+            key={opt.lens}
+            onClick={() => setLens(opt.lens)}
+            className={`w-full rounded-md border px-5 py-4 text-left transition ${
+              lens === opt.lens
+                ? 'border-amber-300 bg-amber-100/10 text-amber-50'
+                : 'border-stone-700 text-stone-300 hover:border-amber-300/50'
             }`}
           >
-            <span className="text-[13px] font-bold tracking-wide">{m.code}</span>
-            <span className="mt-0.5 text-[10px] opacity-80">{m.name}</span>
+            <p className="text-[15px] leading-6">{opt.label}</p>
+            {lens === opt.lens && (
+              <p className="mt-1 text-[12px] text-amber-200/70">{opt.hint}</p>
+            )}
           </button>
         ))}
       </div>
 
-      {mbti && lens && (
-        <div className="mt-5 rounded-md border border-amber-300/30 bg-amber-100/5 p-3 text-center">
-          <p className="text-[13px] leading-6 text-amber-100">{LENS_DESC[lens]}。</p>
-        </div>
-      )}
-
       <div className="flex-1" />
       <button
-        disabled={!mbti}
-        onClick={() => mbti && onDone(name.trim(), mbti)}
-        className="mt-6 w-full rounded border border-amber-300/60 py-3 text-[15px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
+        disabled={!lens}
+        onClick={() => lens && onDone(name.trim(), lens)}
+        className="mt-8 w-full rounded border border-amber-300/60 py-3 text-[15px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
       >
         入梦
       </button>

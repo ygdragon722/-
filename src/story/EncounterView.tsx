@@ -2,8 +2,8 @@
 // 人景一体的场景图铺满，观察/选项浮在底部半透明栏——让画面的"实"发挥出来
 
 import { useState } from 'react';
-import type { Encounter, NpcDef, Scene, LensKey, Clue, Mbti } from './types';
-import { applyRead, initTrust, distanceHint, lensForMbti, type ReadResult } from './engine';
+import type { Encounter, NpcDef, Scene, LensKey, Clue } from './types';
+import { applyRead, initTrust, distanceHint, type ReadResult } from './engine';
 
 const LENS_LABELS: Record<LensKey, string> = {
   N: '直觉',
@@ -17,13 +17,12 @@ interface Props {
   scene: Scene;
   encounter: Encounter;
   clue: Clue;
-  playerMbti?: Mbti;   // 有则自动驱动感知透镜
+  playerLens?: LensKey;  // 由感知题直接传入，无需换算
 }
 
-export default function EncounterView({ npc, scene, encounter, clue, playerMbti }: Props) {
+export default function EncounterView({ npc, scene, encounter, clue, playerLens }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
-  // 玩家的型决定初始透镜（仍可手动切换对照）
-  const [lens, setLens] = useState<LensKey | null>(playerMbti ? lensForMbti(playerMbti) : null);
+  const [lens, setLens] = useState<LensKey | null>(playerLens ?? null);
   const [result, setResult] = useState<ReadResult | null>(null);
   const [done, setDone] = useState(false);
 
