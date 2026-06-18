@@ -11,6 +11,10 @@ export const FENGJIE: NpcDef = {
   verdictEcho: '机关算尽太聪明，反算了卿卿性命',
   correctKeys: ['empathy'],   // 强撑的 ESTJ，要的不是夸，是有人看见她扛着什么
   guardedness: 1.4,           // 难撬难回
+  portraits: {
+    calm: './assets/portraits/fengjie-calm.webp',
+    // open / guarded 表情待生成（同脸不同神情），生好直接补这里
+  },
 };
 
 export const SCENE_OPERA_HALL: Scene = {

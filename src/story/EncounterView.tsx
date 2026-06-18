@@ -28,6 +28,18 @@ export default function EncounterView({ npc, scene, encounter, clue }: Props) {
   const observation =
     (lens && encounter.observation.byLens?.[lens]) || encounter.observation.base;
 
+  // 对话近景：有结果时按读对/读错选表情，缺失则回退到 calm
+  const expr: 'calm' | 'open' | 'guarded' | null = !done
+    ? null
+    : result?.truth
+    ? 'open'
+    : result?.pushedAway
+    ? 'guarded'
+    : 'calm';
+  const closeup = expr
+    ? npc.portraits?.[expr] ?? npc.portraits?.calm ?? null
+    : null;
+
   const handlePick = (approachId: string) => {
     if (done) return;
     const { next, result } = applyRead(npc, encounter, trust, approachId);
@@ -50,11 +62,25 @@ export default function EncounterView({ npc, scene, encounter, clue }: Props) {
       ) : (
         <div className="absolute inset-0 bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950" />
       )}
-      {/* 底部压暗，保证文字可读 */}
-      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-stone-950/30" />
+      {/* 有结果时，场景再压暗一层，聚焦她的近景 */}
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-stone-950/30 transition-opacity duration-500 ${
+          done ? 'opacity-100' : 'opacity-90'
+        }`}
+      />
 
-      {/* 内容层 */}
-      <div className="relative flex min-h-screen flex-col">
+      {/* 对话近景：凤姐特写，读人有结果时整屏淡入（脸在上方，文字浮在下方） */}
+      {closeup && (
+        <img
+          src={closeup}
+          alt={npc.name}
+          className="absolute inset-0 z-10 h-full w-full object-cover object-top transition-opacity duration-500"
+          style={{ opacity: done ? 1 : 0 }}
+        />
+      )}
+
+      {/* 内容层（z-20，确保文字浮在近景立绘之上） */}
+      <div className="relative z-20 flex min-h-screen flex-col">
         {/* 场景名牌（左上） */}
         <div className="px-5 pt-6">
           <div className="inline-flex flex-col border-l-2 border-amber-200/70 bg-stone-950/30 py-1 pl-3 pr-4 backdrop-blur-sm">
@@ -67,7 +93,8 @@ export default function EncounterView({ npc, scene, encounter, clue }: Props) {
 
         {/* 底部浮层：透镜 + 观察 + 选项/结果 */}
         <div className="bg-gradient-to-t from-stone-950/95 to-stone-950/0 px-5 pb-8 pt-10">
-          {/* 感知透镜 */}
+          {/* 感知透镜（仅未抉择前显示，观察完即收起） */}
+          {!done && (
           <div className="mb-3 flex items-center gap-2">
             <span className="text-[11px] text-stone-400">以何眼观之：</span>
             {(Object.keys(LENS_LABELS) as LensKey[]).map((k) => (
@@ -84,6 +111,7 @@ export default function EncounterView({ npc, scene, encounter, clue }: Props) {
               </button>
             ))}
           </div>
+          )}
 
           {/* 观察文案 */}
           <p className="mb-4 border-t border-white/15 pt-3 text-[15px] leading-7 text-stone-100 drop-shadow">

@@ -36,6 +36,8 @@ export interface NpcDef {
   mbti: Mbti;              // ESTJ
   verdictEcho: string;     // 判词回响（一句，读懂时浮现）："机关算尽太聪明"
   portrait?: string;       // 立绘路径（透明/白底）
+  // 对话近景表情：calm=默认表演 / open=卸防读对 / guarded=戒备读错
+  portraits?: Partial<Record<'calm' | 'open' | 'guarded', string>>;
   correctKeys: ReadKey[];  // 能撬开她的"正确钥匙"
   // 宽容度（编码 MBTI）：读错时槽的下滑倍率。凤姐高（难撬难回），湘云低（好亲近）
   guardedness: number;     // 1.0 = 标准；>1 更难、更易推远
