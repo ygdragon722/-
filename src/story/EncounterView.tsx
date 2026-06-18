@@ -17,10 +17,12 @@ interface Props {
   scene: Scene;
   encounter: Encounter;
   clue: Clue;
-  playerLens?: LensKey;  // 由感知题直接传入，无需换算
+  playerLens?: LensKey;
+  onNext?: () => void;      // 有则在结果页显示"前往下一幕"
+  nextLabel?: string;
 }
 
-export default function EncounterView({ npc, scene, encounter, clue, playerLens }: Props) {
+export default function EncounterView({ npc, scene, encounter, clue, playerLens, onNext, nextLabel = '前往下一幕 →' }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
   const [lens, setLens] = useState<LensKey | null>(playerLens ?? null);
   const [result, setResult] = useState<ReadResult | null>(null);
@@ -157,12 +159,22 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens 
                   </div>
                 )}
 
-                <button
-                  onClick={reset}
-                  className="mt-1 rounded border border-white/25 px-4 py-2 text-[13px] text-stone-300 hover:border-amber-200/70 hover:text-amber-100"
-                >
-                  重读这一场（试试别的读法）
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={reset}
+                    className="rounded border border-white/25 px-4 py-2 text-[13px] text-stone-400 hover:border-amber-200/50 hover:text-stone-200"
+                  >
+                    重读这一场
+                  </button>
+                  {onNext && (
+                    <button
+                      onClick={onNext}
+                      className="flex-1 rounded border border-amber-300/60 px-4 py-2 text-[13px] text-amber-100 hover:bg-amber-300/10"
+                    >
+                      {nextLabel}
+                    </button>
+                  )}
+                </div>
               </div>
             )
           )}
