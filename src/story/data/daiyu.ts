@@ -8,8 +8,11 @@ export const DAIYU: NpcDef = {
   verdictEcho: '玉带林中挂，金簪雪里埋',
   guardedness: 0.8,   // 比凤姐好亲近，但敏感——读错她察觉得快
   correctKeys: ['empathy', 'observe'],
-  // 立绘待补：daiyu-calm / daiyu-open / daiyu-guarded
-  portraits: {},
+  portraits: {
+    calm: './assets/portraits/daiyu-calm.webp',
+    open: './assets/portraits/daiyu-open.webp',
+    guarded: './assets/portraits/daiyu-guarded.webp',
+  },
 };
 
 export const SCENE_XIAOXIANG: Scene = {
