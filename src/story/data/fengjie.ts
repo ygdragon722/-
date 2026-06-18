@@ -13,7 +13,8 @@ export const FENGJIE: NpcDef = {
   guardedness: 1.4,           // 难撬难回
   portraits: {
     calm: './assets/portraits/fengjie-calm.webp',
-    // open / guarded 表情待生成（同脸不同神情），生好直接补这里
+    open: './assets/portraits/fengjie-open.webp',       // 卸防·读对
+    guarded: './assets/portraits/fengjie-guarded.webp', // 戒备·读错
   },
 };
 
