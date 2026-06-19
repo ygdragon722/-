@@ -1,98 +1,50 @@
-// 可复用文字渐显组件：逐字打出，标点处加停顿，点击快进/推进
-// 用法：传入 lines 数组，打完所有行后再点一次触发 onComplete（外层推进）
+// 可复用文字渐显组件：整句一次性淡入（电影字幕感），逐句停顿按默读时长动态算
+// 用法：传入 lines 数组，每句淡入后按字数停顿再出下一句；全部显示完后再点一次触发 onComplete（外层推进）
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-// 标点停顿（ms，叠加在 charDelay 上）
-const PUNCT: Record<string, number> = {
-  '，': 180, '。': 380, '！': 380, '？': 380,
-  '——': 280, '…': 320, '、': 120, '：': 150,
-};
-
 interface Props {
-  lines: string[];           // 每项一句，逐句打出
-  charDelay?: number;        // 每个字间隔 ms，默认 42
-  startDelay?: number;       // 首字开始前等待 ms（给画面先被看见的时间），默认 0
+  lines: string[];           // 每项一句，逐句淡入
+  startDelay?: number;       // 首句开始前等待 ms（给画面先被看见的时间），默认 0
   className?: string;        // 文字容器 className
   onComplete?: () => void;   // 所有行显示完 + 用户再点一次时触发
 }
 
-export default function TextReveal({
-  lines,
-  charDelay = 42,
-  startDelay = 0,
-  className = '',
-  onComplete,
-}: Props) {
-  const [started, setStarted] = useState(startDelay === 0);
-  const [lineIdx, setLineIdx] = useState(0);       // 正在打的行
-  const [charIdx, setCharIdx] = useState(0);       // 正在打的字
-  const [done, setDone] = useState(false);         // 全部行打完
-  const [skipped, setSkipped] = useState(false);   // 已快进到全部显示
+// 这句话的默读停顿（按字数动态算，长句多停、短句少停）
+function readingPause(line: string): number {
+  return Math.max(550, line.length * 70);
+}
+
+export default function TextReveal({ lines, startDelay = 0, className = '', onComplete }: Props) {
+  const [shown, setShown] = useState(0);           // 已淡入的行数
+  const [done, setDone] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const clear = () => { if (timer.current) clearTimeout(timer.current); };
 
-  // startDelay 倒计时
   useEffect(() => {
-    if (startDelay <= 0) return;
-    timer.current = setTimeout(() => setStarted(true), startDelay);
+    if (shown >= lines.length) { setDone(true); return; }
+    const delay = shown === 0 ? startDelay : readingPause(lines[shown - 1]);
+    timer.current = setTimeout(() => setShown(s => s + 1), delay);
     return clear;
-  }, [startDelay]);
+  }, [shown, lines, startDelay]);
 
-  // 打字主循环
-  useEffect(() => {
-    if (!started || skipped) return;
-    if (lineIdx >= lines.length) { setDone(true); return; }
-
-    const line = lines[lineIdx];
-
-    if (charIdx >= line.length) {
-      // 这行打完 → 停顿后进下一行（停顿 ≈ 该行默读时间）
-      const pause = Math.max(500, line.length * 55);
-      timer.current = setTimeout(() => {
-        setLineIdx(l => l + 1);
-        setCharIdx(0);
-      }, pause);
-      return clear;
-    }
-
-    // 打下一个字
-    const ch = line[charIdx];
-    const extra = PUNCT[ch] ?? 0;
-    timer.current = setTimeout(() => setCharIdx(c => c + 1), charDelay + extra);
-    return clear;
-  }, [started, skipped, lineIdx, charIdx, lines, charDelay]);
-
-  // 点击处理：未完 → 快进；已完 → 通知外层
   const handleClick = useCallback(() => {
-    if (!done && !skipped) {
+    if (!done) {
       clear();
-      setSkipped(true);
+      setShown(lines.length);
       setDone(true);
-    } else if (done) {
+    } else {
       onComplete?.();
     }
-  }, [done, skipped, onComplete]);
-
-  // 渲染：已完整行 + 正在打的行（含光标）
-  const fullyShown = skipped ? lines : lines.slice(0, lineIdx);
-  const typing = !skipped && lineIdx < lines.length
-    ? lines[lineIdx].slice(0, charIdx)
-    : null;
+  }, [done, lines.length, onComplete]);
 
   return (
     <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
-      {fullyShown.map((l, i) => (
+      {lines.slice(0, shown).map((l, i) => (
         <p key={i} className="animate-fade-in whitespace-pre-line">
           {l}
         </p>
       ))}
-      {typing !== null && (
-        <p className="whitespace-pre-line">
-          {typing}
-          <span className="animate-pulse opacity-70">▍</span>
-        </p>
-      )}
     </div>
   );
 }

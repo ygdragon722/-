@@ -1,4 +1,4 @@
-// 切片流程：正门（冷开场→报名→感知题）→ 凤姐相遇 → 黛玉相遇 → 收束（悟·第一层真相）
+// 切片流程：正门（冷开场→报名→感知题）→ 凤姐相遇 → 黛玉相遇 → 王夫人相遇 → 收束（悟·第一层真相）
 import { useState } from 'react';
 import type { LensKey } from './types';
 import Opening from './Opening';
@@ -6,19 +6,24 @@ import EncounterView from './EncounterView';
 import Reveal from './Reveal';
 import { FENGJIE, SCENE_OPERA_HALL, ENC_FENGJIE_D1, CLUE_FENGJIE_FINANCE } from './data/fengjie';
 import { DAIYU, SCENE_XIAOXIANG, ENC_DAIYU_D1, CLUE_DAIYU_JADE } from './data/daiyu';
+import { WANGFUREN, SCENE_SHANGFANG, ENC_WANGFUREN_D1, CLUE_WANGFUREN_COLD } from './data/wangfuren';
 
-type Stage = 'opening' | 'fengjie' | 'daiyu' | 'reveal';
+type Stage = 'opening' | 'fengjie' | 'daiyu' | 'wangfuren' | 'reveal';
 
 export default function SliceDemo() {
   const [player, setPlayer] = useState<{ name: string; lens: LensKey } | null>(null);
   const [stage, setStage] = useState<Stage>('opening');
   // 暗记每场是否读到真话，收束时据此拼真相
-  const [truths, setTruths] = useState<{ fengjie: boolean; daiyu: boolean }>({ fengjie: false, daiyu: false });
+  const [truths, setTruths] = useState<{ fengjie: boolean; daiyu: boolean; wangfuren: boolean }>({
+    fengjie: false,
+    daiyu: false,
+    wangfuren: false,
+  });
 
   const restart = () => {
     setPlayer(null);
     setStage('opening');
-    setTruths({ fengjie: false, daiyu: false });
+    setTruths({ fengjie: false, daiyu: false, wangfuren: false });
   };
 
   if (!player || stage === 'opening') {
@@ -51,6 +56,22 @@ export default function SliceDemo() {
         clue={CLUE_DAIYU_JADE}
         playerLens={player.lens}
         onResolve={(t) => setTruths((s) => ({ ...s, daiyu: t }))}
+        onNext={() => setStage('wangfuren')}
+        nextLabel="前往上房 →"
+      />
+    );
+  }
+
+  if (stage === 'wangfuren') {
+    return (
+      <EncounterView
+        key="wangfuren"
+        npc={WANGFUREN}
+        scene={SCENE_SHANGFANG}
+        encounter={ENC_WANGFUREN_D1}
+        clue={CLUE_WANGFUREN_COLD}
+        playerLens={player.lens}
+        onResolve={(t) => setTruths((s) => ({ ...s, wangfuren: t }))}
         onNext={() => setStage('reveal')}
         nextLabel="把听见的话摆到一起 →"
       />
@@ -62,6 +83,7 @@ export default function SliceDemo() {
       name={player.name}
       reachedFengjie={truths.fengjie}
       reachedDaiyu={truths.daiyu}
+      reachedWangfuren={truths.wangfuren}
       onRestart={restart}
     />
   );

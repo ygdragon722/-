@@ -100,13 +100,12 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
         >
           {/* 透镜无形起作用：开场定好后，观察文字已因人而异，不再每场提醒（自觉留到结局"反过来读你"） */}
 
-          {/* 观察文案：场景图先被看见（startDelay），再逐字打出；打完才浮现选项 */}
+          {/* 观察文案：场景图先被看见（startDelay），再整句淡入；显示完才浮现选项 */}
           {!done && (
             <TextReveal
               key={encounter.id}
               lines={[observation]}
-              startDelay={700}
-              charDelay={38}
+              startDelay={300}
               className="mb-4 text-[15px] leading-7 text-stone-100 drop-shadow"
               onComplete={() => setObsRevealed(true)}
             />

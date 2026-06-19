@@ -5,6 +5,7 @@ interface Props {
   name: string;
   reachedFengjie: boolean;
   reachedDaiyu: boolean;
+  reachedWangfuren?: boolean;
   onRestart: () => void;
 }
 
@@ -13,9 +14,10 @@ interface Beat {
   content: React.ReactNode;
 }
 
-export default function Reveal({ name, reachedFengjie, reachedDaiyu, onRestart }: Props) {
+export default function Reveal({ name, reachedFengjie, reachedDaiyu, reachedWangfuren, onRestart }: Props) {
   const [step, setStep] = useState(0);
 
+  // 第一层真相（玉是宝玉自己藏的）专用线索
   const clues = [
     reachedFengjie && '凤姐袖里死攥着账册——她的混乱是为钱，不是为玉。她从头到尾，没碰过那块玉。',
     reachedDaiyu  && '黛玉说，她曾盼那块玉消失。而你今晚——也曾这么想过，对不对？',
@@ -83,6 +85,24 @@ export default function Reveal({ name, reachedFengjie, reachedDaiyu, onRestart }
         </div>
       ),
     },
+    // 2.5：王夫人的寒意（第三层伏笔，不属于这层真相，单独留一笔不混进线索板）
+    ...(reachedWangfuren
+      ? [
+          {
+            content: (
+              <div className="rounded-md border border-stone-700 bg-stone-900/40 p-4">
+                <p className="text-[13px] leading-7 text-stone-400">
+                  另有一句，你还没想明白该摆在哪里——
+                  <br />
+                  王夫人说：「这府里见不得脏东西，脏的，总要拾干净。」
+                  <br />
+                  你说不清为什么，这句话让你脊背发凉。
+                </p>
+              </div>
+            ),
+          },
+        ]
+      : []),
     // 3：结尾说明 + 按钮
     {
       content: (

@@ -49,8 +49,7 @@ export default function Opening({ onDone }: Props) {
           <TextReveal
             key={beat}
             lines={[current.text]}
-            startDelay={current.bg ? 600 : 0}
-            charDelay={40}
+            startDelay={current.bg ? 300 : 0}
             className="text-center text-[16px] leading-9 text-stone-100 drop-shadow"
             onComplete={advance}
           />
@@ -63,11 +62,19 @@ export default function Opening({ onDone }: Props) {
     );
   }
 
+  // 接续冷开场最后一拍的同一张省亲夜场景图，亮度逐步从暗到亮，避免黑屏硬切
+  const lastBg = OPENING_BEATS[OPENING_BEATS.length - 1].bg;
+
   // ===== 报名字 =====
   if (phase === 'name') {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col items-center justify-center gap-6 bg-stone-950 px-8">
-        <p className="text-center text-[15px] leading-8 text-stone-300">
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col items-center justify-center gap-6 overflow-hidden bg-stone-950 px-8">
+        {lastBg && (
+          <img src={lastBg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/85 to-stone-950/95" />
+
+        <p className="relative text-center text-[15px] leading-8 text-stone-300 drop-shadow">
           慌乱中，你顺口应下。
           <br />
           可若有人问起——你叫什么名字？
@@ -77,12 +84,12 @@ export default function Opening({ onDone }: Props) {
           onChange={(e) => setName(e.target.value)}
           maxLength={12}
           placeholder="写下你的名字"
-          className="w-full max-w-[260px] rounded border border-stone-600 bg-stone-900 px-4 py-3 text-center text-[16px] text-amber-50 outline-none focus:border-amber-300/70"
+          className="relative w-full max-w-[260px] rounded border border-stone-600 bg-stone-900/80 px-4 py-3 text-center text-[16px] text-amber-50 outline-none backdrop-blur-sm focus:border-amber-300/70"
         />
         <button
           disabled={!name.trim()}
           onClick={() => setPhase('type')}
-          className="rounded border border-amber-300/60 px-6 py-2.5 text-[14px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
+          className="relative rounded border border-amber-300/60 px-6 py-2.5 text-[14px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
         >
           就叫这个名字
         </button>
@@ -92,25 +99,30 @@ export default function Opening({ onDone }: Props) {
 
   // ===== 感知题 =====
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-[440px] flex-col bg-stone-950 px-6 py-10">
-      <p className="mb-3 text-center text-[17px] tracking-wide text-stone-100">
+    <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950 px-6 py-10">
+      {lastBg && (
+        <img src={lastBg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/80 to-stone-950/95" />
+
+      <p className="relative mb-3 text-center text-[17px] tracking-wide text-stone-100 drop-shadow">
         走进赏戏厅，你第一眼注意到的是——
       </p>
-      <p className="mb-8 text-center text-[12px] leading-6 text-stone-500">
+      <p className="relative mb-8 text-center text-[12px] leading-6 text-stone-400 drop-shadow">
         你看人的方式，决定这一路你看见什么、又错过什么。
         <br />
         而结局，会照着你的选择，反过来读你一次。
       </p>
 
-      <div className="space-y-3">
+      <div className="relative space-y-3">
         {SENSE_OPTIONS.map((opt) => (
           <button
             key={opt.lens}
             onClick={() => setLens(opt.lens)}
-            className={`w-full rounded-md border px-5 py-4 text-left transition ${
+            className={`w-full rounded-md border px-5 py-4 text-left backdrop-blur-sm transition ${
               lens === opt.lens
                 ? 'border-amber-300 bg-amber-100/10 text-amber-50'
-                : 'border-stone-700 text-stone-300 hover:border-amber-300/50'
+                : 'border-stone-700 bg-stone-950/40 text-stone-300 hover:border-amber-300/50'
             }`}
           >
             <p className="text-[15px] leading-6">{opt.label}</p>
@@ -125,7 +137,7 @@ export default function Opening({ onDone }: Props) {
       <button
         disabled={!lens}
         onClick={() => lens && onDone(name.trim(), lens)}
-        className="mt-8 w-full rounded border border-amber-300/60 py-3 text-[15px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
+        className="relative mt-8 w-full rounded border border-amber-300/60 py-3 text-[15px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
       >
         入梦
       </button>
