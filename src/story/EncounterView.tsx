@@ -2,8 +2,8 @@
 // 人景一体的场景图铺满，观察/选项浮在底部半透明栏——让画面的"实"发挥出来
 
 import { useState } from 'react';
-import type { Encounter, NpcDef, Scene, LensKey, Clue } from './types';
-import { applyRead, initTrust, distanceHint, type ReadResult } from './engine';
+import type { Encounter, NpcDef, Scene, Clue, ReadKey } from './types';
+import { applyRead, initTrust, type ReadResult } from './engine';
 import TextReveal from './TextReveal';
 
 interface Props {
@@ -11,21 +11,19 @@ interface Props {
   scene: Scene;
   encounter: Encounter;
   clue: Clue;
-  playerLens?: LensKey;
   onNext?: () => void;      // 有则在结果页显示"前往下一幕"
   nextLabel?: string;
-  onResolve?: (reachedTruth: boolean) => void; // 抉择后回报：本场是否读到真话
+  // 抉择后回报：本场是否读到真话 + 用了什么读法 + 玩家说了什么（供结局"反过来读你"归纳与原句回放）
+  onResolve?: (info: { reachedTruth: boolean; readKey: ReadKey; playerLine: string }) => void;
 }
 
-export default function EncounterView({ npc, scene, encounter, clue, playerLens, onNext, nextLabel = '前往下一幕 →', onResolve }: Props) {
+export default function EncounterView({ npc, scene, encounter, onNext, nextLabel = '前往下一幕 →', onResolve }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
-  const lens: LensKey | null = playerLens ?? null;
   const [result, setResult] = useState<ReadResult | null>(null);
   const [done, setDone] = useState(false);
   const [obsRevealed, setObsRevealed] = useState(false); // 观察文字打完，才显示选项
 
-  const observation =
-    (lens && encounter.observation.byLens?.[lens]) || encounter.observation.base;
+  const observation = encounter.observation.base;
 
   // 对话近景：有结果时按读对/读错选表情，缺失则回退到 calm
   const expr: 'calm' | 'open' | 'guarded' | null = !done
@@ -45,7 +43,11 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
     setTrust(next);
     setResult(result);
     setDone(true);
-    onResolve?.(!!result.truth);
+    onResolve?.({
+      reachedTruth: !!result.truth,
+      readKey: result.approach.key,
+      playerLine: result.approach.playerLine,
+    });
   };
 
   const reset = () => {
@@ -57,11 +59,11 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
 
   return (
     <div className="relative mx-auto min-h-screen w-full max-w-[440px] overflow-hidden bg-stone-900">
-      {/* 场景图铺满（人景一体） */}
+      {/* 场景图铺满（人景一体）。进场淡入，和冷开场/日间过渡的转场节奏一致，不硬切 */}
       {scene.bg ? (
-        <img src={scene.bg} alt={scene.name} className="absolute inset-0 h-full w-full object-cover" />
+        <img src={scene.bg} alt={scene.name} className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950" />
+        <div className="absolute inset-0 animate-fade-in-scene bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950" />
       )}
       {/* 有结果时，场景再压暗一层，聚焦她的近景 */}
       <div
@@ -120,34 +122,17 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
                   onClick={() => handlePick(a.id)}
                   className="block w-full rounded-md border border-white/20 bg-stone-950/55 px-4 py-3 text-left text-[14px] leading-6 text-stone-100 backdrop-blur-sm transition active:scale-[0.99] hover:border-amber-200/70 hover:bg-stone-900/70"
                 >
-                  <span className="mr-2 text-[11px] font-bold tracking-widest text-amber-200/80">{a.label}</span>
                   {a.playerLine}
                 </button>
               ))}
             </div>
           ) : (
             result && (
-              <div className="space-y-4">
-                <p className="text-[15px] leading-7 text-stone-100 drop-shadow">{result.approach.outcome}</p>
-
-                <p className={`text-[13px] italic leading-6 ${result.pushedAway ? 'text-stone-400' : 'text-emerald-200/90'}`}>
-                  {distanceHint(result.trustAfter)}
-                  <span className="ml-2 text-[11px] not-italic text-stone-500">
-                    （距离 {result.trustBefore} → {result.trustAfter}）
-                  </span>
+              <div className="space-y-5">
+                {/* 屏幕只留故事：她的反应整段浮现，不显示距离/判词/线索等机制标签 */}
+                <p className="animate-fade-in whitespace-pre-line text-[15px] leading-8 text-stone-100 drop-shadow">
+                  {result.approach.outcome}
                 </p>
-
-                {result.truth && (
-                  <div className="rounded-md border border-amber-300/40 bg-amber-100/10 p-4 backdrop-blur-sm">
-                    <p className="text-[15px] leading-7 text-amber-50">{result.truth.text}</p>
-                    {result.truth.verdictEcho && (
-                      <p className="mt-3 border-t border-amber-200/30 pt-2 text-[12px] tracking-wide text-amber-200/90">
-                        判词回响 · {result.truth.verdictEcho}
-                      </p>
-                    )}
-                    <p className="mt-2 text-[12px] text-stone-300">◆ 线索入册：{clue.text}</p>
-                  </div>
-                )}
 
                 <div className="flex gap-3">
                   <button

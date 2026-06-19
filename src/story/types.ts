@@ -1,11 +1,12 @@
 // 红楼探案 VN · 读人引擎核心类型
 // 设计原则：
 //   1. 脚本作数据、不硬编（Encounter/Scene/Truth 都从数据文件加载）
-//   2. 玩家 MBTI 只作"感知透镜 + 结局回响"，绝不分叉剧情树
+//   2. 不要求玩家做任何性格自我申报；玩家是谁，由全程读法选择刻画，结局反过来读你
 //   3. 信任/距离槽 = 你和角色的关系本身，读对走近、读错推远、到阈值吐真话
 //   4. 可达性：信任低照样能通关，只是"终究没真正懂她"的版本
 
-// ========== MBTI ==========
+// ========== MBTI（仅作写人内部脚手架，不在界面出现） ==========
+// 保证每个角色"性格⟷判词⟷动机"三位一体；玩家永远看不到这个字段。
 
 export type Mbti =
   | 'INTJ' | 'INTP' | 'ENTJ' | 'ENTP'
@@ -13,12 +14,8 @@ export type Mbti =
   | 'ISTJ' | 'ISFJ' | 'ESTJ' | 'ESFJ'
   | 'ISTP' | 'ISFP' | 'ESTP' | 'ESFP';
 
-// 感知透镜维度：决定玩家"先看见什么"（同一观察的不同入口）
-//   N 看潜台词 / F 看情绪 / T 看逻辑漏洞 / J 给整理好的线索板
-export type LensKey = 'N' | 'F' | 'T' | 'J';
-
 // 读法钥匙：玩家靠近一个人时采取的社交姿态
-//   每个角色有一把（或几把）能撬开 TA 的"正确钥匙"——读对即匹配
+//   读法 = 玩家靠近一个人时的行为选择（无对错，只是不同的靠近方式）
 export type ReadKey =
   | 'empathy'   // 共情：看见对方的情绪与苦
   | 'logic'     // 论理：对逻辑漏洞下手、冷静质询
@@ -27,6 +24,22 @@ export type ReadKey =
   | 'observe'   // 旁观：不接触，冷静取证
   | 'play'      // 玩闹：轻松跳脱（对湘云一类）
   | 'defer';    // 顺服：示弱、依从
+
+// ========== Big Five 底层（写人/读你脚手架，不上屏） ==========
+// O 开放性 / C 尽责性 / E 外向性 / A 宜人性 / N 神经质
+// 每个读法天然加载若干维度（+1 该读法体现的倾向）。这是"判词体验、Big Five 骨架"的
+// 那层骨架：现在只埋标签，结局仍只给判词；将来题量够了可据此打开维度侧写，钩子已留。
+export type BigFiveDim = 'O' | 'C' | 'E' | 'A' | 'N';
+
+export const READ_KEY_BIGFIVE: Record<ReadKey, Partial<Record<BigFiveDim, number>>> = {
+  empathy:  { A: 1, O: 1 },          // 接住情绪：高宜人、对感受开放
+  observe:  { O: 1, C: 1, E: -1 },   // 退一步取证：内省、谨慎、不外露
+  logic:    { C: 1, A: -1 },         // 追逻辑：条理、低圆滑
+  confront: { E: 1, A: -1 },         // 硬碰：主张强、不顾和气
+  flatter:  { E: 1, A: 1 },          // 周旋讨好：外向、表面亲和（策略性）
+  defer:    { A: 1, E: -1 },         // 示弱顺从：随和、低主张
+  play:     { E: 1, O: 1, C: -1 },   // 玩闹：外向、跳脱、不端着
+};
 
 // ========== 角色（静态定义） ==========
 
@@ -53,10 +66,9 @@ export interface TrustState {
 
 // ========== 一场相遇 ==========
 
-// 观察：默认文案 + 各透镜的专属入口（玩家按自己 MBTI 看见对应那条）
+// 观察：进入一场相遇时，玩家看见的那段定场观察（每场一条，不再按透镜分支）
 export interface Observation {
-  base: string;                          // 无匹配透镜时的兜底
-  byLens?: Partial<Record<LensKey, string>>;
+  base: string;
 }
 
 // 一个读法选项
@@ -71,12 +83,12 @@ export interface ReadApproach {
   unlocksTruthId?: string;
 }
 
-// 真话：达到信任阈值时吐露的那句——既是线索，也是判词裂缝
+// 真话：达到信任阈值时角色卸下的那一层（具体台词已直接写进对应 ReadApproach.outcome 里，
+// 这里只留 id 供 engine 做解锁匹配 + devNote 供开发时核对，devNote 从不上屏）
 export interface TruthLine {
   id: string;
-  text: string;        // 她吐露的真话
-  clueId: string;      // 同时入账的线索
-  verdictEcho?: string;// 这句呼应的判词（可与 NpcDef.verdictEcho 一致）
+  clueId: string;   // 同时入账的线索
+  devNote: string;   // 仅供开发核对"这是哪一层卸防"，从不渲染到界面
 }
 
 export interface Encounter {
@@ -137,7 +149,6 @@ export interface Ending {
 
 export interface StoryState {
   playerName: string;
-  playerMbti: Mbti | null;     // 玩家声明的型（透镜+回响用）
   day: 1 | 2 | 3;
   currentEncounterId: string | null;
   trust: Record<string, TrustState>;  // 按 npcId

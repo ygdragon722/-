@@ -2,13 +2,9 @@
 // 女文青 · 读了十年红楼 → 现代仿建大观园 → 跛足道人 → 风月宝鉴 → 入梦省亲夜
 // 脚本作数据，文案可随时改
 
-export interface OpeningBeat {
-  text: string;
-  bg?: string;        // 该幕背景图（可空，空＝墨色渐变）
-  dim?: boolean;      // 是否压暗（落地省亲夜那幕用真图时压暗保可读）
-}
+import type { Beat } from '../BeatScene';
 
-export const OPENING_BEATS: OpeningBeat[] = [
+export const OPENING_BEATS: Beat[] = [
   {
     text: '你读了十年《红楼梦》。\n\n别人读故事，你读人。\n贾母怎么偏心、凤姐怎么撑场面、黛玉为什么非死不可——\n你觉得，这一府的人，你比他们自己更懂。',
     bg: './assets/locations/yihong.webp',
@@ -36,8 +32,9 @@ export const OPENING_BEATS: OpeningBeat[] = [
     text: '光，骤然漫过来。',
   },
   {
+    // 故意不用 fengjie-opera.webp：那张图是凤姐从容掌控全场的得意神态，
+    // 与"没有记忆、只有茫然"的情绪相反，且会让她的脸提前剧透。
+    // 这一拍保持暗场，把凤姐的初登场完整留给她自己的相遇场。
     text: '再睁眼——\n\n满目朱楼绮户、火树银花。\n你在一副陌生的身体里，没有记忆，只有茫然。\n\n一个丫鬟匆匆掠过，撞了你一下：\n「哎哟！宝二爷还愣着？\n　娘娘省亲，眼看就要开始了——快去！」',
-    bg: './assets/scenes/fengjie-opera.webp',
-    dim: true,
   },
 ];
