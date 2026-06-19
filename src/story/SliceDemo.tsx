@@ -13,6 +13,7 @@ import Opening from './Opening';
 import EncounterView from './EncounterView';
 import BeatScene from './BeatScene';
 import Day1Wrap from './Day1Wrap';
+import Day2Wrap from './Day2Wrap';
 import Placeholder from './Placeholder';
 import Ending from './Ending';
 import { FENGJIE, SCENE_OPERA_HALL, ENC_FENGJIE_D1, CLUE_FENGJIE_FINANCE } from './data/fengjie';
@@ -20,6 +21,7 @@ import { DAIYU, SCENE_XIAOXIANG, ENC_DAIYU_D1, CLUE_DAIYU_JADE } from './data/da
 import { WANGFUREN, SCENE_SHANGFANG, ENC_WANGFUREN_D1, CLUE_WANGFUREN_COLD } from './data/wangfuren';
 import { DAY2_BEATS } from './data/day2';
 import { JIAMU, SCENE_RONGQING, ENC_JIAMU_D2, CLUE_JIAMU_SILENCE } from './data/jiamu';
+import { WANGFUREN_NPC, SCENE_FOTANG, ENC_WANGFUREN_D2, CLUE_WANGFUREN_HAND } from './data/wangfuren2';
 
 type Stage =
   | 'opening'
@@ -129,20 +131,24 @@ export default function SliceDemo() {
 
   if (stage === 'day2_wangfuren2') {
     return (
-      <Placeholder
-        label="王夫人第二场 · 她那只手（待写）"
-        note="案件宪法：正式被怀疑的一场，与凤姐财务案、丫鬬之死同一根线。"
-        onContinue={() => setStage('day2wrap')}
+      <EncounterView
+        key="wangfuren2"
+        npc={WANGFUREN_NPC}
+        scene={SCENE_FOTANG}
+        encounter={ENC_WANGFUREN_D2}
+        clue={CLUE_WANGFUREN_HAND}
+        onResolve={mark('wangfuren2')}
+        onNext={() => setStage('day2wrap')}
+        nextLabel="把这一天摆到一起 →"
       />
     );
   }
 
   if (stage === 'day2wrap') {
     return (
-      <Placeholder
-        label="第二天总结（待写）"
-        note="用 DaySummary 渲染，内容待第二天场次定稿后再写。"
-        continueLabel="前往第三天 →"
+      <Day2Wrap
+        reachedJiamu={marks.jiamu?.reachedTruth ?? false}
+        reachedWangfuren2={marks.wangfuren2?.reachedTruth ?? false}
         onContinue={() => setStage('day3_transition')}
       />
     );
@@ -178,12 +184,14 @@ export default function SliceDemo() {
         marks.daiyu?.readKey,
         marks.wangfuren?.readKey,
         marks.jiamu?.readKey,
+        marks.wangfuren2?.readKey,
       ]}
       recap={[
         { npc: '凤姐', line: marks.fengjie?.playerLine },
         { npc: '黛玉', line: marks.daiyu?.playerLine },
         { npc: '王夫人', line: marks.wangfuren?.playerLine },
         { npc: '贾母', line: marks.jiamu?.playerLine },
+        { npc: '王夫人 · 佛堂', line: marks.wangfuren2?.playerLine },
       ]}
       onRestart={restart}
     />

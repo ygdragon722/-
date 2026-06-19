@@ -14,6 +14,12 @@ body {
   margin: 0;
 }
 
+/* 中文排版：避免换行后末行只剩孤零零一两个字（孤字）。
+   text-wrap: pretty 专门优化每段最后一行，不让单字掉下去。 */
+p {
+  text-wrap: pretty;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
