@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import type { Encounter, NpcDef, Scene, LensKey, Clue } from './types';
 import { applyRead, initTrust, distanceHint, type ReadResult } from './engine';
+import TextReveal from './TextReveal';
 
 interface Props {
   npc: NpcDef;
@@ -13,13 +14,15 @@ interface Props {
   playerLens?: LensKey;
   onNext?: () => void;      // 有则在结果页显示"前往下一幕"
   nextLabel?: string;
+  onResolve?: (reachedTruth: boolean) => void; // 抉择后回报：本场是否读到真话
 }
 
-export default function EncounterView({ npc, scene, encounter, clue, playerLens, onNext, nextLabel = '前往下一幕 →' }: Props) {
+export default function EncounterView({ npc, scene, encounter, clue, playerLens, onNext, nextLabel = '前往下一幕 →', onResolve }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
   const lens: LensKey | null = playerLens ?? null;
   const [result, setResult] = useState<ReadResult | null>(null);
   const [done, setDone] = useState(false);
+  const [obsRevealed, setObsRevealed] = useState(false); // 观察文字打完，才显示选项
 
   const observation =
     (lens && encounter.observation.byLens?.[lens]) || encounter.observation.base;
@@ -42,12 +45,14 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
     setTrust(next);
     setResult(result);
     setDone(true);
+    onResolve?.(!!result.truth);
   };
 
   const reset = () => {
     setTrust(initTrust(npc.id));
     setResult(null);
     setDone(false);
+    setObsRevealed(false);
   };
 
   return (
@@ -95,16 +100,21 @@ export default function EncounterView({ npc, scene, encounter, clue, playerLens,
         >
           {/* 透镜无形起作用：开场定好后，观察文字已因人而异，不再每场提醒（自觉留到结局"反过来读你"） */}
 
-          {/* 观察文案（仅未抉择前显示，done 后让位给她的反应，避免堆高遮脸） */}
+          {/* 观察文案：场景图先被看见（startDelay），再逐字打出；打完才浮现选项 */}
           {!done && (
-            <p className="mb-4 border-t border-white/15 pt-3 text-[15px] leading-7 text-stone-100 drop-shadow">
-              {observation}
-            </p>
+            <TextReveal
+              key={encounter.id}
+              lines={[observation]}
+              startDelay={700}
+              charDelay={38}
+              className="mb-4 text-[15px] leading-7 text-stone-100 drop-shadow"
+              onComplete={() => setObsRevealed(true)}
+            />
           )}
 
           {/* 选项 或 结果 */}
           {!done ? (
-            <div className="space-y-2.5">
+            <div className={`space-y-2.5 transition-opacity duration-300 ${obsRevealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
               {encounter.approaches.map((a) => (
                 <button
                   key={a.id}

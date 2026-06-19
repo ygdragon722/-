@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import type { LensKey } from './types';
 import { OPENING_BEATS } from './data/opening';
+import TextReveal from './TextReveal';
 
-// 一道感知题：4个选项各自对应一种观察视角，不提 MBTI
 const SENSE_OPTIONS: { label: string; hint: string; lens: LensKey }[] = [
   { label: '她的眼睛里有什么', hint: '情绪，那些没说出口的感受', lens: 'F' },
   { label: '她笑着，但笑没到眼睛里', hint: '潜台词，言语背后真正想说的', lens: 'N' },
@@ -32,20 +32,33 @@ export default function Opening({ onDone }: Props) {
   // ===== 冷开场 =====
   if (phase === 'cold') {
     return (
-      <div
-        className="relative mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col overflow-hidden bg-stone-950"
-        onClick={advance}
-      >
+      <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950">
+        {/* 场景图：每个 beat 独立 key，触发重新淡入 */}
         {current.bg && (
-          <img src={current.bg} alt="" className={`absolute inset-0 h-full w-full object-cover ${current.dim ? 'opacity-45' : ''}`} />
+          <img
+            key={`bg-${beat}`}
+            src={current.bg}
+            alt=""
+            className={`absolute inset-0 h-full w-full object-cover animate-fade-in-scene ${current.dim ? 'opacity-45' : ''}`}
+          />
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-stone-950/85 via-stone-950/60 to-stone-950/90" />
+
+        {/* 文字区：图片淡入后 600ms 才开始打字 */}
         <div className="relative flex flex-1 items-center justify-center px-7">
-          <p key={beat} className="animate-fade-in whitespace-pre-line text-center text-[16px] leading-9 text-stone-100 drop-shadow">
-            {current.text}
-          </p>
+          <TextReveal
+            key={beat}
+            lines={[current.text]}
+            startDelay={current.bg ? 600 : 0}
+            charDelay={40}
+            className="text-center text-[16px] leading-9 text-stone-100 drop-shadow"
+            onComplete={advance}
+          />
         </div>
-        <div className="relative pb-8 text-center text-[11px] tracking-widest text-stone-500">轻触继续</div>
+
+        <div className="relative pb-8 text-center text-[11px] tracking-widest text-stone-500">
+          轻触继续
+        </div>
       </div>
     );
   }
