@@ -35,7 +35,7 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
           className={`absolute inset-0 h-full w-full object-cover animate-fade-in-scene ${current.dim ? 'opacity-45' : ''}`}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/85 via-stone-950/60 to-stone-950/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/55 via-transparent to-stone-950/80" />
 
       {chapterLabel && (
         <p className="relative pt-8 text-center text-[12px] tracking-[0.4em] text-amber-200/60">
@@ -43,18 +43,19 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
         </p>
       )}
 
-      {/* 文字区：图片淡入后才开始浮现 */}
-      <div className="relative flex flex-1 items-center justify-center px-7">
+      {/* 字幕区：占满剩余空间，整片都能点（不止文字本身那一小块）；文字本身压在画面底部 */}
+      <div className="relative flex flex-1 flex-col px-8 pb-24">
         <TextReveal
           key={beat}
           lines={[current.text]}
           startDelay={current.bg ? 300 : 0}
-          className="text-center text-[16px] leading-9 text-stone-100 drop-shadow"
+          mode="subtitle"
+          className="flex flex-1 w-full flex-col items-center justify-end text-center text-[17px] leading-8 text-stone-50 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
           onComplete={advance}
         />
       </div>
 
-      <div className="relative pb-8 text-center text-[11px] tracking-widest text-stone-500">
+      <div className="relative pb-6 text-center text-[11px] tracking-widest text-stone-300/80">
         轻触继续
       </div>
     </div>

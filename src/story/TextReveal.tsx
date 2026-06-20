@@ -8,6 +8,9 @@ interface Props {
   startDelay?: number;       // 首行开始前等待 ms（给画面先被看见的时间），默认 0
   className?: string;        // 文字容器 className
   onComplete?: () => void;   // 所有行显示完 + 用户再点一次时触发
+  // 'stack'（默认）＝逐行往下堆，前面的话留在屏幕上（相遇场/抉择场用，后面紧跟着选项要读）。
+  // 'subtitle' ＝电影字幕式，一次只留一句，说完换下一句不堆叠（纯叙事过场用，画面常年干净）。
+  mode?: 'stack' | 'subtitle';
 }
 
 // 这一行的默读停顿（按字数动态算）；空行＝段落间隔，给一个短呼吸
@@ -16,7 +19,7 @@ function readingPause(line: string): number {
   return Math.max(550, line.length * 70);
 }
 
-export default function TextReveal({ lines, startDelay = 0, className = '', onComplete }: Props) {
+export default function TextReveal({ lines, startDelay = 0, className = '', onComplete, mode = 'stack' }: Props) {
   // 把每个文本块按换行拆成一行一行——这样整段不会一次性出现，而是逐行浮现
   const allLines = lines.flatMap((l) => l.split('\n'));
 
@@ -42,6 +45,23 @@ export default function TextReveal({ lines, startDelay = 0, className = '', onCo
       onComplete?.();
     }
   }, [done, allLines.length, onComplete]);
+
+  if (mode === 'subtitle') {
+    // 字幕式：只渲染当前这一句，换行（含空行）直接跳到下一句，不留旧句
+    let current = '';
+    for (let i = shown - 1; i >= 0; i--) {
+      if (allLines[i].trim() !== '') { current = allLines[i]; break; }
+    }
+    return (
+      <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
+        {current && (
+          <p key={shown} className="animate-fade-in">
+            {current}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
