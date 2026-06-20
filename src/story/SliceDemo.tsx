@@ -21,6 +21,7 @@ import {
   DAY3_BEATS, DAY3_BRIDGE_BEATS, JADE_SETUP, JADE_CHOICES, GIRL_SETUP, GIRL_CHOICES,
   type JadeChoice, type GirlChoice,
 } from './data/day3';
+import { trackRead, trackMoralChoice } from '../analytics';
 
 type Stage =
   | 'opening'
@@ -47,8 +48,10 @@ export default function SliceDemo() {
     setGirlChoice('leave');
   };
 
-  const mark = (who: string) => (info: Mark) =>
+  const mark = (who: string) => (info: Mark) => {
     setMarks((m) => ({ ...m, [who]: info }));
+    trackRead({ npcId: who, readKey: info.readKey, reachedTruth: info.reachedTruth });
+  };
 
   if (name === null || stage === 'opening') {
     return <Opening onDone={(n) => { setName(n); setStage('fengjie'); }} />;
@@ -168,7 +171,11 @@ export default function SliceDemo() {
         tag="抉择一 · 玉"
         setup={JADE_SETUP}
         choices={JADE_CHOICES}
-        onChoose={(id) => { setJadeChoice(id as JadeChoice); setStage('day3_bridge'); }}
+        onChoose={(id) => {
+          setJadeChoice(id as JadeChoice);
+          trackMoralChoice({ choice: 'jade', value: id, ignite: id === 'reveal' });
+          setStage('day3_bridge');
+        }}
       />
     );
   }
@@ -184,7 +191,11 @@ export default function SliceDemo() {
         setup={GIRL_SETUP}
         choices={GIRL_CHOICES}
         continueLabel="前往终局 →"
-        onChoose={(id) => { setGirlChoice(id as GirlChoice); setStage('ending'); }}
+        onChoose={(id) => {
+          setGirlChoice(id as GirlChoice);
+          trackMoralChoice({ choice: 'girl', value: id, ignite: id === 'remember' });
+          setStage('ending');
+        }}
       />
     );
   }

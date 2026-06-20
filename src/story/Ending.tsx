@@ -1,8 +1,9 @@
 // 全局终极结局：回顾原话 → 判断逻辑 → 反过来读你（三字标题 + 白话引句 + 判词）。
 // 这是走完所有天数才触发的唯一终局——判词是给走到最后的人的文学奖励，不在中途提前揭晓。
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReadKey } from './types';
 import { EPILOGUE, GIRL_VERDICT, MORAL_CODA, type JadeChoice, type GirlChoice } from './data/day3';
+import { trackEndingReached } from '../analytics';
 
 interface RecapItem {
   npc: string;
@@ -93,6 +94,12 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
 export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart }: Props) {
   const [step, setStep] = useState(0);
   const verdict = pickVerdict(readKeys);
+
+  useEffect(() => {
+    trackEndingReached(verdict.title);
+    // 只在终局首次到达时打一次点，verdict 由 readKeys 派生、本场不会再变
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const beats: Beat[] = [
     // 0：原句回放——这一路你是怎么走过来的
