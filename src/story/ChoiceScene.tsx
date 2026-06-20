@@ -20,7 +20,14 @@ interface Props {
 
 export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continueLabel = '继续 →' }: Props) {
   const [revealed, setRevealed] = useState(false); // 铺陈读完才出选项
+  const [selecting, setSelecting] = useState<string | null>(null); // 按下但还没真正落定，给一拍犹豫感
   const [picked, setPicked] = useState<Choice | null>(null);
+
+  const handlePick = (c: Choice) => {
+    if (selecting) return;
+    setSelecting(c.id);
+    setTimeout(() => setPicked(c), 550);
+  };
 
   return (
     <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950">
@@ -39,13 +46,21 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
               className="flex flex-1 flex-col justify-center text-[15px] leading-9 text-stone-200 drop-shadow"
               onComplete={() => setRevealed(true)}
             />
-            {/* 选项：铺陈读完才浮现 */}
-            <div className={`mt-9 space-y-3 transition-opacity duration-500 ${revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-              {choices.map((c) => (
+            {/* 选项：铺陈读完才浮现，两个选项错开节拍出现、隔得更远——这不是导航按钮，是抉择 */}
+            <div className={`mt-10 space-y-7 transition-opacity duration-500 ${revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              {choices.map((c, i) => (
                 <button
                   key={c.id}
-                  onClick={() => setPicked(c)}
-                  className="block w-full rounded-md border border-white/25 bg-stone-950/50 px-5 py-4 text-left text-[15px] leading-7 text-stone-100 backdrop-blur-sm transition active:scale-[0.99] hover:border-amber-200/70 hover:bg-stone-900/70"
+                  onClick={() => handlePick(c)}
+                  disabled={!!selecting}
+                  style={{ transitionDelay: revealed ? `${i * 250}ms` : '0ms' }}
+                  className={`block w-full rounded border px-6 py-6 text-center font-serif text-[16px] leading-8 tracking-[0.05em] backdrop-blur-sm transition-all duration-500 active:scale-[0.98] ${
+                    selecting === c.id
+                      ? 'scale-[1.02] border-amber-200 bg-amber-100/10 text-amber-50'
+                      : selecting
+                      ? 'border-white/10 text-stone-500 opacity-40'
+                      : 'border-amber-200/30 text-stone-100 hover:border-amber-200/70 hover:bg-amber-100/5'
+                  } ${revealed ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}
                 >
                   {c.label}
                 </button>

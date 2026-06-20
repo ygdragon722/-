@@ -74,6 +74,22 @@ p {
   animation: scale-in 0.3s ease-out forwards;
 }
 
+@keyframes fade-in-grand {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 给"压轴牌"用的更慢、更隆重的淡入——判词卡/抉择反应这类该被多看一眼的内容 */
+.animate-fade-in-grand {
+  animation: fade-in-grand 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 @keyframes flash-badge {
   0%   { opacity: 0; transform: translateX(-50%) translateY(-6px) scale(0.9); }
   15%  { opacity: 1; transform: translateX(-50%) translateY(0)    scale(1);   }

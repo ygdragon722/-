@@ -60,13 +60,13 @@ export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue }
       </p>
     </div>,
 
-    // 过渡到第三天
+    // 过渡到第三天——预告的是接下来真正要做的两个决定（玉/女孩），不是单一的"说不说"
     <p className="text-center text-[13px] leading-8 text-stone-400">
       明日，是省亲的最后一日。
       <br />
-      你手里攥着的这些话，迟早要做一个决定——
+      你手里攥着两件事——一块藏起来的玉，一个没人记得的人。
       <br />
-      说出来，还是，像所有人一样，把它咽下去。
+      天亮之前，这两件事，都要由你来决定怎么收。
     </p>,
   ];
 

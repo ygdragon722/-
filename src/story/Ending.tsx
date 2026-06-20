@@ -42,8 +42,13 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
   return VERDICTS.biased;
 }
 
+// 这几拍是压轴牌，不让手快的人一划而过：揭到这一拍时短暂锁住点击，逼着多停一眼
+// key＝揭开后的 step 值（beats[step-1] 刚刚露出来）
+const HELD_BEATS: Record<number, number> = { 3: 900, 5: 1400 };
+
 export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart }: Props) {
   const [step, setStep] = useState(0);
+  const [locked, setLocked] = useState(false);
   const verdict = pickVerdict(readKeys);
 
   useEffect(() => {
@@ -51,6 +56,17 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
     // 只在终局首次到达时打一次点，verdict 由 readKeys 派生、本场不会再变
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const advance = () => {
+    if (locked) return;
+    const next = step + 1;
+    setStep(next);
+    const hold = HELD_BEATS[next];
+    if (hold) {
+      setLocked(true);
+      setTimeout(() => setLocked(false), hold);
+    }
+  };
 
   const beats: Beat[] = [
     // 0：原句回放——这一路你是怎么走过来的
@@ -77,24 +93,25 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
         <p className="text-center text-[14px] leading-8 text-stone-300">{EPILOGUE[jadeChoice]}</p>
       ),
     },
-    // 2：她的判词——随抉择二（女孩）变化
+    // 2：她的判词——随抉择二（女孩）变化。记住/遗忘是全剧该被拉开差距的对比，
+    // 故意不用同一种卡片：记住她的版本更暖、更隆重；忘记她的版本更空、更久地停在那句话上。
     {
       content:
         girlChoice === 'remember' ? (
-          <div className="rounded-md border border-stone-700 bg-stone-900/60 p-5 text-center">
-            <p className="mb-3 text-[11px] tracking-[0.3em] text-stone-500">她的判词</p>
-            <div className="space-y-1.5">
+          <div className="rounded-md border border-amber-200/30 bg-amber-50/[0.04] p-6 text-center">
+            <p className="mb-4 text-[11px] tracking-[0.3em] text-amber-200/50">她的判词</p>
+            <div className="space-y-2">
               {GIRL_VERDICT.map((line, i) => (
-                <p key={i} className="text-[15px] leading-8 tracking-wide text-stone-200">
+                <p key={i} className="font-serif text-[16px] leading-9 tracking-wide text-amber-100">
                   {line}
                 </p>
               ))}
             </div>
           </div>
         ) : (
-          <div className="rounded-md border border-stone-800 bg-black/40 p-5 text-center">
-            <p className="text-[14px] leading-8 text-stone-500">这里，本该有一首判词。</p>
-            <p className="text-[14px] leading-8 text-stone-500">可你没有写。</p>
+          <div className="rounded-md border border-stone-900 bg-black/50 px-5 py-12 text-center">
+            <p className="text-[14px] leading-10 text-stone-600">这里，本该有一首判词。</p>
+            <p className="text-[14px] leading-10 text-stone-600">可你没有写。</p>
           </div>
         ),
     },
@@ -144,7 +161,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
   return (
     <div
       className="relative mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col overflow-hidden bg-stone-950 px-7 py-12"
-      onClick={() => !isDone && setStep((s) => s + 1)}
+      onClick={() => !isDone && advance()}
     >
       <img
         src="./assets/scenes/ending-mirror-moon.webp"
@@ -157,7 +174,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
 
       <div className="relative space-y-6">
         {beats.slice(0, step).map((beat, i) => (
-          <div key={i} className="animate-fade-in">
+          <div key={i} className={HELD_BEATS[i + 1] ? 'animate-fade-in-grand' : 'animate-fade-in'}>
             {beat.content}
           </div>
         ))}
