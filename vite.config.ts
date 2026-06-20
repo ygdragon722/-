@@ -11,9 +11,9 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: '红楼幻梦 · 大观园群芳谱',
+        name: '红楼幻梦',
         short_name: '红楼幻梦',
-        description: '红楼梦 MBTI 文字养成游戏——在大观园中走出属于你的结局。',
+        description: '一部两小时的互动红楼电影——附身宝玉，用现代人的眼睛读懂大观园里的女人，结局也会反过来给你写一首判词。',
         theme_color: '#1c1917',
         background_color: '#1c1917',
         display: 'standalone',

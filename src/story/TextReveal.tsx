@@ -14,9 +14,10 @@ interface Props {
 }
 
 // 这一行的默读停顿（按字数动态算）；空行＝段落间隔，给一个短呼吸
+// 字数*85ms 模拟默读速度，再加一段固定起读反应时间，短句也不会读不完就被换掉
 function readingPause(line: string): number {
-  if (line.trim() === '') return 320;
-  return Math.max(550, line.length * 70);
+  if (line.trim() === '') return 400;
+  return 500 + line.length * 85;
 }
 
 export default function TextReveal({ lines, startDelay = 0, className = '', onComplete, mode = 'stack' }: Props) {
@@ -65,15 +66,19 @@ export default function TextReveal({ lines, startDelay = 0, className = '', onCo
 
   return (
     <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
-      {allLines.slice(0, shown).map((l, i) =>
-        l.trim() === '' ? (
-          <div key={i} className="h-4" /> // 空行＝段落间隔
-        ) : (
-          <p key={i} className="animate-fade-in">
-            {l}
-          </p>
-        )
-      )}
+      {allLines.slice(0, shown).map((l, i) => {
+        if (l.trim() === '') return <div key={i} className="h-4" />; // 空行＝段落间隔
+        // 堆叠模式下老话不撤场，但要退到视觉背景去——离当前越远越淡，
+        // 不然几行一摞，读起来像墙。透明度放在不参与渐入动画的外层div上，
+        // 避免和animate-fade-in的opacity关键帧打架。
+        const distance = shown - 1 - i;
+        const dim = Math.max(0.4, 1 - distance * 0.25);
+        return (
+          <div key={i} className="transition-opacity duration-500" style={{ opacity: dim }}>
+            <p className="animate-fade-in">{l}</p>
+          </div>
+        );
+      })}
     </div>
   );
 }

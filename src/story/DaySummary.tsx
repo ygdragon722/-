@@ -19,7 +19,7 @@ export default function DaySummary({ tag, beats, continueLabel, onContinue }: Pr
       className="mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col bg-stone-950 px-7 py-12"
       onClick={() => !isDone && setStep((s) => s + 1)}
     >
-      <p className="mb-8 text-center text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>
+      <p className="mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>
 
       <div className="space-y-6">
         {beats.slice(0, step).map((beat, i) => (

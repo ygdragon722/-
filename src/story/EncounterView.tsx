@@ -87,7 +87,7 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
         {/* 场景名牌（左上） */}
         <div className="px-5 pt-6">
           <div className="inline-flex flex-col border-l-2 border-amber-200/70 bg-stone-950/30 py-1 pl-3 pr-4 backdrop-blur-sm">
-            <span className="text-lg font-bold tracking-[0.3em] text-amber-50 drop-shadow">{scene.name}</span>
+            <span className="font-serif text-lg font-bold tracking-[0.3em] text-amber-50 drop-shadow">{scene.name}</span>
             <span className="mt-0.5 text-[11px] tracking-wide text-stone-300/90 drop-shadow">{scene.desc}</span>
           </div>
         </div>
@@ -107,7 +107,8 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
             <TextReveal
               key={encounter.id}
               lines={[observation]}
-              startDelay={300}
+              // 场景图（或渐变占位）淡入(.8s)走完、再停半拍才出字
+              startDelay={1300}
               className="mb-4 text-[15px] leading-7 text-stone-100 drop-shadow"
               onComplete={() => setObsRevealed(true)}
             />

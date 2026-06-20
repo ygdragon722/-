@@ -38,7 +38,7 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/55 via-transparent to-stone-950/80" />
 
       {chapterLabel && (
-        <p className="relative pt-8 text-center text-[12px] tracking-[0.4em] text-amber-200/60">
+        <p className="relative pt-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">
           {chapterLabel}
         </p>
       )}
@@ -48,7 +48,9 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
         <TextReveal
           key={beat}
           lines={[current.text]}
-          startDelay={current.bg ? 300 : 0}
+          // 有图：等场景图淡入(.8s)完全停稳、再留半拍给人看画面，文字才出来；
+          // 无图（暗场切场）：没有淡入要等，但也留个短呼吸，别一切就砸字
+          startDelay={current.bg ? 1300 : 450}
           mode="subtitle"
           className="flex flex-1 w-full flex-col items-center justify-end text-center text-[17px] leading-8 text-stone-50 drop-shadow-[0_2px_6px_rgba(0,0,0,0.85)]"
           onComplete={advance}

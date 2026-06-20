@@ -2,8 +2,9 @@
 // 开场 → 第一天(凤姐/黛玉/王夫人) → 第一天总结 →
 // 第二天过渡 → 第二天场次(贾母/王夫人佛堂) → 第二天总结 →
 // 第三天过渡 → 抉择一·玉 → 过桥 → 抉择二·女孩 → 终局(判词)
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { ReadKey } from './types';
+import { loadSave, writeSave, clearSave } from './save';
 import Opening from './Opening';
 import EncounterView from './EncounterView';
 import BeatScene from './BeatScene';
@@ -30,17 +31,33 @@ type Stage =
   | 'day3_transition' | 'day3_jade' | 'day3_bridge' | 'day3_girl'
   | 'ending';
 
+const STAGES: Stage[] = [
+  'opening',
+  'fengjie', 'daiyu', 'wangfuren', 'day1wrap',
+  'day2_transition', 'day2_jiamu', 'day2_wangfuren2', 'day2wrap',
+  'day3_transition', 'day3_jade', 'day3_bridge', 'day3_girl',
+  'ending',
+];
+const isStage = (s: string): s is Stage => (STAGES as string[]).includes(s);
+
 // 每场留下的痕迹：读到真话没有 + 用了什么读法 + 玩家原话（供结局归纳"你是谁"、原句回放）
 interface Mark { reachedTruth: boolean; readKey: ReadKey; playerLine: string }
 
+const saved = loadSave();
+
 export default function SliceDemo() {
-  const [name, setName] = useState<string | null>(null);
-  const [stage, setStage] = useState<Stage>('opening');
-  const [marks, setMarks] = useState<Record<string, Mark>>({});
-  const [jadeChoice, setJadeChoice] = useState<JadeChoice>('hide');
-  const [girlChoice, setGirlChoice] = useState<GirlChoice>('leave');
+  const [name, setName] = useState<string | null>(saved?.name ?? null);
+  const [stage, setStage] = useState<Stage>(saved && isStage(saved.stage) ? saved.stage : 'opening');
+  const [marks, setMarks] = useState<Record<string, Mark>>((saved?.marks as Record<string, Mark>) ?? {});
+  const [jadeChoice, setJadeChoice] = useState<JadeChoice>((saved?.jadeChoice as JadeChoice) ?? 'hide');
+  const [girlChoice, setGirlChoice] = useState<GirlChoice>((saved?.girlChoice as GirlChoice) ?? 'leave');
+
+  useEffect(() => {
+    writeSave({ name, stage, marks, jadeChoice, girlChoice });
+  }, [name, stage, marks, jadeChoice, girlChoice]);
 
   const restart = () => {
+    clearSave();
     setName(null);
     setStage('opening');
     setMarks({});

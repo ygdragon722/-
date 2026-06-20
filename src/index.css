@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-family-serif: 'STSong', 'SimSun', 'Songti SC', 'Noto Serif SC', serif;
+  --font-serif: 'Noto Serif SC', 'STSong', 'SimSun', 'Songti SC', serif;
 }
 
 html,

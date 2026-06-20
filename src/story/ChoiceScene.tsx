@@ -28,14 +28,14 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/85 via-stone-950/70 to-stone-950/95" />
 
       <div className="relative flex min-h-screen flex-col px-7 py-12">
-        {tag && <p className="mb-8 text-center text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>}
+        {tag && <p className="mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>}
 
         {!picked ? (
           <>
             {/* 抉择前铺陈：整屏可点，和其余场景的轻触习惯一致 */}
             <TextReveal
               lines={[setup]}
-              startDelay={bg ? 300 : 0}
+              startDelay={bg ? 1300 : 450}
               className="flex flex-1 flex-col justify-center text-[15px] leading-9 text-stone-200 drop-shadow"
               onComplete={() => setRevealed(true)}
             />
