@@ -2,6 +2,7 @@
 // 这是走完所有天数才触发的唯一终局——判词是给走到最后的人的文学奖励，不在中途提前揭晓。
 import { useState } from 'react';
 import type { ReadKey } from './types';
+import { EPILOGUE, GIRL_VERDICT, MORAL_CODA, type JadeChoice, type GirlChoice } from './data/day3';
 
 interface RecapItem {
   npc: string;
@@ -11,6 +12,8 @@ interface RecapItem {
 interface Props {
   readKeys: (ReadKey | undefined)[]; // 全程各场用的读法（可能缺）
   recap: RecapItem[];                // 全程各场的玩家原话（供结局原句回放）
+  jadeChoice: JadeChoice;
+  girlChoice: GirlChoice;
   onRestart: () => void;
 }
 
@@ -87,7 +90,7 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
   return VERDICTS.biased;
 }
 
-export default function Ending({ readKeys, recap, onRestart }: Props) {
+export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart }: Props) {
   const [step, setStep] = useState(0);
   const verdict = pickVerdict(readKeys);
 
@@ -110,7 +113,34 @@ export default function Ending({ readKeys, recap, onRestart }: Props) {
         </div>
       ),
     },
-    // 1：判断逻辑——为什么是这个结论
+    // 1：尾声——随抉择一（玉）变化
+    {
+      content: (
+        <p className="text-center text-[14px] leading-8 text-stone-300">{EPILOGUE[jadeChoice]}</p>
+      ),
+    },
+    // 2：她的判词——随抉择二（女孩）变化
+    {
+      content:
+        girlChoice === 'remember' ? (
+          <div className="rounded-md border border-stone-700 bg-stone-900/60 p-5 text-center">
+            <p className="mb-3 text-[11px] tracking-[0.3em] text-stone-500">她的判词</p>
+            <div className="space-y-1.5">
+              {GIRL_VERDICT.map((line, i) => (
+                <p key={i} className="text-[15px] leading-8 tracking-wide text-stone-200">
+                  {line}
+                </p>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="rounded-md border border-stone-800 bg-black/40 p-5 text-center">
+            <p className="text-[14px] leading-8 text-stone-500">这里，本该有一首判词。</p>
+            <p className="text-[14px] leading-8 text-stone-500">可你没有写。</p>
+          </div>
+        ),
+    },
+    // 3：判断逻辑——为什么是这个结论
     {
       content: (
         <p className="text-center text-[14px] leading-8 text-stone-300">
@@ -118,7 +148,7 @@ export default function Ending({ readKeys, recap, onRestart }: Props) {
         </p>
       ),
     },
-    // 2：反过来读你——三字标题 + 白话引句 + 判词
+    // 4：反过来读你——三字标题 + 白话引句 + 判词 + 道德定音句
     {
       content: (
         <div className="rounded-md border border-amber-300/40 bg-amber-100/[0.05] p-6 text-center backdrop-blur-sm">
@@ -132,10 +162,13 @@ export default function Ending({ readKeys, recap, onRestart }: Props) {
               </p>
             ))}
           </div>
+          <p className="mt-5 border-t border-amber-200/20 pt-5 text-[13px] leading-7 text-amber-200/80">
+            {MORAL_CODA[girlChoice]}
+          </p>
         </div>
       ),
     },
-    // 3：结尾 + 按钮
+    // 5：结尾 + 按钮
     {
       content: (
         <button

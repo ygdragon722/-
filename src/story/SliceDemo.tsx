@@ -1,20 +1,15 @@
-// 全局流程骨架（三天完整链路已搭好）：
+// 全局流程骨架（三天完整链路已实装）：
 // 开场 → 第一天(凤姐/黛玉/王夫人) → 第一天总结 →
-// 第二天过渡 → 第二天场次(贾母等，待审) → 第二天总结 →
-// 第三天过渡 → 第三天场次(道德抉择，待写) → 终局(判词)
-//
-// 占位说明：day2/day3 的内容文档还在审阅中（见 docs/第二天_丫鬬之死_贾母初场_待审_*.md），
-// 在这之前用 Placeholder 占住流程位置，保证整条链路能跑通预览。
-// 审完后：把对应 Stage 的 Placeholder 换成真组件（BeatScene 过渡 + EncounterView 场次 + DaySummary 总结）即可，
-// 不需要再改整体结构。
+// 第二天过渡 → 第二天场次(贾母/王夫人佛堂) → 第二天总结 →
+// 第三天过渡 → 抉择一·玉 → 过桥 → 抉择二·女孩 → 终局(判词)
 import { useState } from 'react';
 import type { ReadKey } from './types';
 import Opening from './Opening';
 import EncounterView from './EncounterView';
 import BeatScene from './BeatScene';
+import ChoiceScene from './ChoiceScene';
 import Day1Wrap from './Day1Wrap';
 import Day2Wrap from './Day2Wrap';
-import Placeholder from './Placeholder';
 import Ending from './Ending';
 import { FENGJIE, SCENE_OPERA_HALL, ENC_FENGJIE_D1, CLUE_FENGJIE_FINANCE } from './data/fengjie';
 import { DAIYU, SCENE_XIAOXIANG, ENC_DAIYU_D1, CLUE_DAIYU_JADE } from './data/daiyu';
@@ -22,12 +17,16 @@ import { WANGFUREN, SCENE_SHANGFANG, ENC_WANGFUREN_D1, CLUE_WANGFUREN_COLD } fro
 import { DAY2_BEATS } from './data/day2';
 import { JIAMU, SCENE_RONGQING, ENC_JIAMU_D2, CLUE_JIAMU_SILENCE } from './data/jiamu';
 import { WANGFUREN_NPC, SCENE_FOTANG, ENC_WANGFUREN_D2, CLUE_WANGFUREN_HAND } from './data/wangfuren2';
+import {
+  DAY3_BEATS, DAY3_BRIDGE_BEATS, JADE_SETUP, JADE_CHOICES, GIRL_SETUP, GIRL_CHOICES,
+  type JadeChoice, type GirlChoice,
+} from './data/day3';
 
 type Stage =
   | 'opening'
   | 'fengjie' | 'daiyu' | 'wangfuren' | 'day1wrap'
   | 'day2_transition' | 'day2_jiamu' | 'day2_wangfuren2' | 'day2wrap'
-  | 'day3_transition' | 'day3_encounters'
+  | 'day3_transition' | 'day3_jade' | 'day3_bridge' | 'day3_girl'
   | 'ending';
 
 // 每场留下的痕迹：读到真话没有 + 用了什么读法 + 玩家原话（供结局归纳"你是谁"、原句回放）
@@ -37,11 +36,15 @@ export default function SliceDemo() {
   const [name, setName] = useState<string | null>(null);
   const [stage, setStage] = useState<Stage>('opening');
   const [marks, setMarks] = useState<Record<string, Mark>>({});
+  const [jadeChoice, setJadeChoice] = useState<JadeChoice>('hide');
+  const [girlChoice, setGirlChoice] = useState<GirlChoice>('leave');
 
   const restart = () => {
     setName(null);
     setStage('opening');
     setMarks({});
+    setJadeChoice('hide');
+    setGirlChoice('leave');
   };
 
   const mark = (who: string) => (info: Mark) =>
@@ -154,24 +157,34 @@ export default function SliceDemo() {
     );
   }
 
-  // ===== 第三天：道德抉择，待写 =====
+  // ===== 第三天：两个抉择 =====
   if (stage === 'day3_transition') {
+    return <BeatScene beats={DAY3_BEATS} chapterLabel="第三天" onComplete={() => setStage('day3_jade')} />;
+  }
+
+  if (stage === 'day3_jade') {
     return (
-      <Placeholder
-        label="第三天 · 过渡（待写）"
-        note="案件宪法：两案同一根线，道德抉择——点燃真相 / 像所有人一样埋了她。"
-        onContinue={() => setStage('day3_encounters')}
+      <ChoiceScene
+        tag="抉择一 · 玉"
+        setup={JADE_SETUP}
+        choices={JADE_CHOICES}
+        onChoose={(id) => { setJadeChoice(id as JadeChoice); setStage('day3_bridge'); }}
       />
     );
   }
 
-  if (stage === 'day3_encounters') {
+  if (stage === 'day3_bridge') {
+    return <BeatScene beats={DAY3_BRIDGE_BEATS} onComplete={() => setStage('day3_girl')} />;
+  }
+
+  if (stage === 'day3_girl') {
     return (
-      <Placeholder
-        label="第三天场次 · 道德抉择（待写）"
-        note="这是全局唯一的分叉点（点燃/埋了），结局正文按此分支。"
+      <ChoiceScene
+        tag="抉择二 · 女孩"
+        setup={GIRL_SETUP}
+        choices={GIRL_CHOICES}
         continueLabel="前往终局 →"
-        onContinue={() => setStage('ending')}
+        onChoose={(id) => { setGirlChoice(id as GirlChoice); setStage('ending'); }}
       />
     );
   }
@@ -193,6 +206,8 @@ export default function SliceDemo() {
         { npc: '贾母', line: marks.jiamu?.playerLine },
         { npc: '王夫人 · 佛堂', line: marks.wangfuren2?.playerLine },
       ]}
+      jadeChoice={jadeChoice}
+      girlChoice={girlChoice}
       onRestart={restart}
     />
   );
