@@ -19,7 +19,7 @@ import { DAY2_BEATS } from './data/day2';
 import { JIAMU, SCENE_RONGQING, ENC_JIAMU_D2, CLUE_JIAMU_SILENCE } from './data/jiamu';
 import { WANGFUREN_NPC, SCENE_FOTANG, ENC_WANGFUREN_D2, CLUE_WANGFUREN_HAND } from './data/wangfuren2';
 import {
-  DAY3_BEATS, DAY3_BRIDGE_BEATS, JADE_SETUP, JADE_CHOICES, GIRL_SETUP, GIRL_CHOICES,
+  DAY3_BEATS, DAY3_BRIDGE_BEATS, JADE_SETUP, JADE_CHOICES, JADE_BG, GIRL_SETUP, GIRL_CHOICES, GIRL_BG,
   type JadeChoice, type GirlChoice,
 } from './data/day3';
 import { trackRead, trackMoralChoice } from '../analytics';
@@ -186,6 +186,7 @@ export default function SliceDemo() {
     return (
       <ChoiceScene
         tag="抉择一 · 玉"
+        bg={JADE_BG}
         setup={JADE_SETUP}
         choices={JADE_CHOICES}
         onChoose={(id) => {
@@ -205,6 +206,7 @@ export default function SliceDemo() {
     return (
       <ChoiceScene
         tag="抉择二 · 女孩"
+        bg={GIRL_BG}
         setup={GIRL_SETUP}
         choices={GIRL_CHOICES}
         continueLabel="前往终局 →"

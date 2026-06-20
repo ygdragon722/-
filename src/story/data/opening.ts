@@ -15,18 +15,15 @@ export const OPENING_BEATS: Beat[] = [
   },
   {
     text: '游人散尽，暮色四合。\n\n假山背后，一个跛脚老者守着一地旧物。\n他抬眼看你，像是已等了很久。\n\n「姑娘，」他说，「真正懂一个人，\n和以为自己懂——差得很远呢。」',
-    bg: './assets/locations/hengwu.webp',
-    dim: true,
+    bg: './assets/scenes/opening-taoist-stall.webp',
   },
   {
     text: '他递来一面锈迹斑斑的铜镜，背面刻着三个字——风月鉴。\n\n「记着，」老者的声音忽然很轻，\n「只许照背面。千万、别看正面。」',
-    bg: './assets/locations/hengwu.webp',
-    dim: true,
+    bg: './assets/scenes/opening-mirror-back.webp',
   },
   {
     text: '可你鬼使神差，翻到了正面。\n\n镜子里……是他的脸。\n不是你以为的那个人——\n是宝玉。是那张你读了十年、以为读懂了的脸。\n\n你伸出手，去碰——',
-    bg: './assets/locations/hengwu.webp',
-    dim: true,
+    bg: './assets/scenes/opening-mirror-face.webp',
   },
   {
     text: '光，骤然漫过来。',

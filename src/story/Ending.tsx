@@ -143,12 +143,19 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
 
   return (
     <div
-      className="mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col bg-stone-950 px-7 py-12"
+      className="relative mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col overflow-hidden bg-stone-950 px-7 py-12"
       onClick={() => !isDone && setStep((s) => s + 1)}
     >
-      <p className="mb-8 text-center text-[12px] tracking-[0.4em] text-amber-200/60">终局</p>
+      <img
+        src="./assets/scenes/ending-mirror-moon.webp"
+        alt=""
+        className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/55 to-stone-950/90" />
 
-      <div className="space-y-6">
+      <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">终局</p>
+
+      <div className="relative space-y-6">
         {beats.slice(0, step).map((beat, i) => (
           <div key={i} className="animate-fade-in">
             {beat.content}
@@ -157,7 +164,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       </div>
 
       {!isDone && (
-        <div className="mt-auto pt-10 text-center text-[11px] tracking-widest text-stone-600">
+        <div className="relative mt-auto pt-10 text-center text-[11px] tracking-widest text-stone-300/80">
           轻触继续
         </div>
       )}

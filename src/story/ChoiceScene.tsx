@@ -24,8 +24,8 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
 
   return (
     <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950">
-      {bg && <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30 animate-fade-in-scene" />}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/85 via-stone-950/70 to-stone-950/95" />
+      {bg && <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />}
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/55 to-stone-950/90" />
 
       <div className="relative flex min-h-screen flex-col px-7 py-12">
         {tag && <p className="mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>}

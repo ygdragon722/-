@@ -8,19 +8,26 @@ export type JadeChoice = 'reveal' | 'hide';
 export type GirlChoice = 'remember' | 'leave';
 
 // ===== 第三天过场 =====
+const DAWN_MANSION_BG = './assets/scenes/day3-dawn-mansion.webp';
+
 export const DAY3_BEATS: Beat[] = [
   {
     text: '省亲的最后一日。\n天没亮，园子里就开始忙了。元妃的仪仗、回宫的车驾，一样样备起来。',
+    bg: DAWN_MANSION_BG,
   },
   {
     text: '满府的人还在找那块玉——找了三天，翻遍了每一个角落。\n可你手里，攥着两个只有你知道的秘密。',
+    bg: DAWN_MANSION_BG,
   },
   {
     text: '一个，是那块玉，到底在哪。\n一个，是井边那个女孩，到底是怎么没的。\n\n天亮之前，你得决定，拿它们怎么办。',
+    bg: DAWN_MANSION_BG,
   },
 ];
 
 // ===== 抉择一 · 玉 =====
+export const JADE_BG = DAWN_MANSION_BG;
+
 export const JADE_SETUP =
   '你比这府里任何人都懂宝玉。\n所以你想得到，他会把那块他厌恶了一辈子的"命"，藏在哪里。\n\n那块玉，从来没有丢。它只是，被它的主人亲手藏了起来。\n而现在，全府的安宁，就系在你这一个念头上。';
 
@@ -40,16 +47,22 @@ export const JADE_CHOICES: { id: JadeChoice; label: string; outcome: string }[] 
 ];
 
 // ===== 过桥（玉 → 女孩） =====
+const WELL_RELICS_BG = './assets/scenes/well-relics.webp';
+
 export const DAY3_BRIDGE_BEATS: Beat[] = [
   {
     text: '玉的事，无论你怎么选，到天亮，都会过去。\n\n可还有一个人，不会因为天亮，就回来。',
+    bg: WELL_RELICS_BG,
   },
   {
     text: '你走到那口井边。晨雾还没散。\n她那点东西——一只旧荷包，半双没绣完的鞋样——还在井台的石阶上，没人收。',
+    bg: WELL_RELICS_BG,
   },
 ];
 
 // ===== 抉择二 · 女孩（压轴） =====
+export const GIRL_BG = WELL_RELICS_BG;
+
 export const GIRL_SETUP =
   '这府里的女子，个个都有一首判词，写尽了她们的命。\n凤姐有，黛玉有，连那高墙里的元妃也有。\n\n唯独她没有。\n没有姓名，没有册子，没有一行字，记得她曾经活过。\n\n而你，是这满园里唯一一个，还记得她的人。';
 
