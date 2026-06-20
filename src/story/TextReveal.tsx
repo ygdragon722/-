@@ -1,6 +1,7 @@
-// 可复用文字渐显组件：整段文字按换行拆成一行一行，逐行淡入，
-// 每行停顿按默读时长动态算（长句多停、短句少停），尊重人的阅读节奏。
-// 不整页一次性蹦出来；用户轻触可快进显示全部，全部显示完再点触发 onComplete。
+// 可复用文字渐显组件（堆叠式）：整段文字按换行拆成一行一行，逐行淡入往下堆，
+// 前面的话留在屏幕上（相遇场/抉择场用，后面紧跟着选项要一起读）；老话越远越淡，不糊成墙。
+// 每行停顿按默读时长动态算（长句多停、短句少停）。用户轻触可快进显示全部，全部显示完再点触发 onComplete。
+// （纯叙事过场的"字幕框 + 点一下翻一句"不在这里，见 BeatScene。）
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 interface Props {
@@ -8,9 +9,6 @@ interface Props {
   startDelay?: number;       // 首行开始前等待 ms（给画面先被看见的时间），默认 0
   className?: string;        // 文字容器 className
   onComplete?: () => void;   // 所有行显示完 + 用户再点一次时触发
-  // 'stack'（默认）＝逐行往下堆，前面的话留在屏幕上（相遇场/抉择场用，后面紧跟着选项要读）。
-  // 'subtitle' ＝电影字幕式，一次只留一句，说完换下一句不堆叠（纯叙事过场用，画面常年干净）。
-  mode?: 'stack' | 'subtitle';
 }
 
 // 这一行的默读停顿（按字数动态算）；空行＝段落间隔，给一个短呼吸
@@ -20,7 +18,7 @@ function readingPause(line: string): number {
   return 500 + line.length * 85;
 }
 
-export default function TextReveal({ lines, startDelay = 0, className = '', onComplete, mode = 'stack' }: Props) {
+export default function TextReveal({ lines, startDelay = 0, className = '', onComplete }: Props) {
   // 把每个文本块按换行拆成一行一行——这样整段不会一次性出现，而是逐行浮现
   const allLines = lines.flatMap((l) => l.split('\n'));
 
@@ -46,23 +44,6 @@ export default function TextReveal({ lines, startDelay = 0, className = '', onCo
       onComplete?.();
     }
   }, [done, allLines.length, onComplete]);
-
-  if (mode === 'subtitle') {
-    // 字幕式：只渲染当前这一句，换行（含空行）直接跳到下一句，不留旧句
-    let current = '';
-    for (let i = shown - 1; i >= 0; i--) {
-      if (allLines[i].trim() !== '') { current = allLines[i]; break; }
-    }
-    return (
-      <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
-        {current && (
-          <p key={shown} className="animate-fade-in">
-            {current}
-          </p>
-        )}
-      </div>
-    );
-  }
 
   return (
     <div onClick={handleClick} className={`cursor-pointer select-none ${className}`}>
