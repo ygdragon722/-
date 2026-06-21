@@ -78,5 +78,13 @@ export default function Day1Wrap({ name, reachedFengjie, reachedDaiyu, reachedWa
     </p>,
   ];
 
-  return <DaySummary tag="悟" beats={beats} continueLabel="前往第二天 →" onContinue={onContinue} />;
+  return (
+    <DaySummary
+      tag="悟"
+      bg="./assets/scenes/day1wrap-night.webp"
+      beats={beats}
+      continueLabel="前往第二天 →"
+      onContinue={onContinue}
+    />
+  );
 }

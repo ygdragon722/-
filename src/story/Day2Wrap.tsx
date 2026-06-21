@@ -70,5 +70,13 @@ export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue }
     </p>,
   ];
 
-  return <DaySummary tag="第二天" beats={beats} continueLabel="前往第三天 →" onContinue={onContinue} />;
+  return (
+    <DaySummary
+      tag="第二天"
+      bg="./assets/scenes/day2wrap-night.webp"
+      beats={beats}
+      continueLabel="前往第三天 →"
+      onContinue={onContinue}
+    />
+  );
 }
