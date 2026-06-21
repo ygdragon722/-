@@ -1,45 +1,50 @@
-// 通用"日终总结"外壳：分批渐出几句简短总结，结尾给"前往下一天"按钮。
+// 通用"日终总结"外壳：一屏只显示一条总结（点一下换下一条，不是越点越长往下堆），
+// 翻到最后一条后该条消失、浮现"前往下一天"按钮——屏幕大小固定，不出现滚动条。
 // 不是大段描写，只是把这一天听见/看见的几句话点一下——判词式的大结局只在 Ending.tsx，
 // 走完所有天数才出现一次，这里每天都不重复。
 import { useState } from 'react';
+import { useArm } from './SubtitleBox';
 
 interface Props {
   tag: string;                 // 顶部小标签，如"悟"
-  beats: React.ReactNode[];    // 几条简短总结，逐条渐出
+  beats: React.ReactNode[];    // 几条简短总结，一条一条翻页
   continueLabel: string;       // "前往第二天 →"
   onContinue: () => void;
 }
 
 export default function DaySummary({ tag, beats, continueLabel, onContinue }: Props) {
-  const [step, setStep] = useState(0);
-  const isDone = step >= beats.length;
+  const [idx, setIdx] = useState(0); // 当前显示第几条（0 起）
+  const isDone = idx >= beats.length;
+  const continueArmed = useArm(isDone);
+
+  const advance = () => {
+    if (!isDone) setIdx((i) => i + 1);
+  };
 
   return (
-    <div
-      className="mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col bg-stone-950 px-7 py-12"
-      onClick={() => !isDone && setStep((s) => s + 1)}
-    >
+    <div className="relative mx-auto flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950 px-7 py-12">
       <p className="mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>
 
-      <div className="space-y-6">
-        {beats.slice(0, step).map((beat, i) => (
-          <div key={i} className="animate-fade-in">
-            {beat}
+      {isDone ? (
+        <div className="flex-1" />
+      ) : (
+        <button onClick={advance} className="flex flex-1 flex-col items-center justify-center">
+          <div key={idx} className="w-full animate-fade-in">
+            {beats[idx]}
           </div>
-        ))}
-      </div>
+        </button>
+      )}
 
       {isDone ? (
         <button
           onClick={onContinue}
-          className="mt-9 w-full rounded border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10"
+          disabled={!continueArmed}
+          className="w-full animate-fade-in rounded border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10"
         >
           {continueLabel}
         </button>
       ) : (
-        <div className="mt-auto pt-10 text-center text-[11px] tracking-widest text-stone-600">
-          轻触继续
-        </div>
+        <div className="pt-6 text-center text-[11px] tracking-widest text-stone-600">轻触继续</div>
       )}
     </div>
   );

@@ -42,12 +42,12 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
   return VERDICTS.biased;
 }
 
-// 这几拍是压轴牌，不让手快的人一划而过：揭到这一拍时短暂锁住点击，逼着多停一眼
-// key＝揭开后的 step 值（beats[step-1] 刚刚露出来）
-const HELD_BEATS: Record<number, number> = { 3: 900, 5: 1400 };
+// 这几拍是压轴牌，不让手快的人一划而过：翻到这一拍时短暂锁住点击，逼着多停一眼
+// key＝该拍在 beats 数组里的下标（0 起）
+const HELD_BEATS: Record<number, number> = { 2: 900, 4: 1400 };
 
 export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart }: Props) {
-  const [step, setStep] = useState(0);
+  const [idx, setIdx] = useState(0); // 当前显示第几拍（0 起）
   const [locked, setLocked] = useState(false);
   const verdict = pickVerdict(readKeys);
 
@@ -59,8 +59,8 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
 
   const advance = () => {
     if (locked) return;
-    const next = step + 1;
-    setStep(next);
+    const next = idx + 1;
+    setIdx(next);
     const hold = HELD_BEATS[next];
     if (hold) {
       setLocked(true);
@@ -156,13 +156,11 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
     },
   ];
 
-  const isDone = step >= beats.length;
+  const current = beats[idx];
+  const isLastBeat = idx === beats.length - 1; // 最后一拍本身就是"从头再读一遍"按钮，不再包一层可点击外壳
 
   return (
-    <div
-      className="relative mx-auto flex min-h-screen w-full max-w-[440px] cursor-pointer flex-col overflow-hidden bg-stone-950 px-7 py-12"
-      onClick={() => !isDone && advance()}
-    >
+    <div className="relative mx-auto flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950 px-7 py-12">
       <img
         src="./assets/scenes/ending-mirror-moon.webp"
         alt=""
@@ -172,16 +170,25 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
 
       <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">终局</p>
 
-      <div className="relative space-y-6">
-        {beats.slice(0, step).map((beat, i) => (
-          <div key={i} className={HELD_BEATS[i + 1] ? 'animate-fade-in-grand' : 'animate-fade-in'}>
-            {beat.content}
+      {isLastBeat ? (
+        <>
+          <div className="relative flex-1" />
+          <div key={idx} className="relative w-full animate-fade-in">{current.content}</div>
+        </>
+      ) : (
+        <button
+          onClick={advance}
+          disabled={locked}
+          className="relative flex flex-1 flex-col items-center justify-center"
+        >
+          <div key={idx} className={`w-full ${HELD_BEATS[idx] ? 'animate-fade-in-grand' : 'animate-fade-in'}`}>
+            {current.content}
           </div>
-        ))}
-      </div>
+        </button>
+      )}
 
-      {!isDone && (
-        <div className="relative mt-auto pt-10 text-center text-[11px] tracking-widest text-stone-300/80">
+      {!isLastBeat && (
+        <div className="relative pt-6 text-center text-[11px] tracking-widest text-stone-300/80">
           轻触继续
         </div>
       )}
