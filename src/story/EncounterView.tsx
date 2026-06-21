@@ -1,7 +1,7 @@
 // 一场读人相遇（竖屏移动优先 · 全屏 VN 排版）。
 // 观察走字幕框（点一句翻一句）→ 读完框消失、浮现 4 个读法选项 →
 // 选后她的反应也走字幕框 → 读完出"下一幕"。文字始终在框里，节奏交给玩家。
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Encounter, NpcDef, Scene, Clue, ReadKey } from './types';
 import { applyRead, initTrust, type ReadResult } from './engine';
 import SubtitleBox, { useArm } from './SubtitleBox';
@@ -24,18 +24,27 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
   const [reactDone, setReactDone] = useState(false); // 反应读完 → 出下一幕
   const optionsArmed = useArm(obsDone && !result); // 选项刚出现时先不接点击，防误触
   const nextArmed = useArm(reactDone);
+  const [personArrived, setPersonArrived] = useState(false); // 人随着观察文字浮现，不是一开场就杵在空镜头里
 
   const observation = encounter.observation.base;
 
-  // 对话近景：有结果时按读对/读错选表情，缺失则回退到 calm
-  const expr: 'calm' | 'open' | 'guarded' | null = !result
-    ? null
+  // 场景先独自淡入喘一口气，人再随观察文字一起浮现进画面
+  useEffect(() => {
+    setPersonArrived(false);
+    const t = setTimeout(() => setPersonArrived(true), scene.bg ? 900 : 350);
+    return () => clearTimeout(t);
+  }, [encounter.id, scene.bg]);
+
+  // 对话近景：有结果时按读对/读错选表情，缺失则回退到 calm（观察阶段先用 calm 把人带进画面）
+  const expr: 'calm' | 'open' | 'guarded' = !result
+    ? 'calm'
     : result.truth
     ? 'open'
     : result.pushedAway
     ? 'guarded'
     : 'calm';
-  const closeup = expr ? npc.portraits?.[expr] ?? npc.portraits?.calm ?? null : null;
+  const closeup = npc.portraits?.[expr] ?? npc.portraits?.calm ?? null;
+  const showCloseup = !!closeup && (personArrived || !!result);
 
   const handlePick = (approachId: string) => {
     if (result) return;
@@ -71,13 +80,14 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
         }`}
       />
 
-      {/* 对话近景：读人有结果时整屏淡入（脸在上方，字幕框压在下方） */}
+      {/* 人随观察文字一起淡入到空场景里（脸在上方，字幕框压在下方）；有结果后切换表情，仍是同一张脸淡入淡出 */}
       {closeup && (
         <img
+          key={expr}
           src={closeup}
           alt={npc.name}
-          className="absolute inset-0 z-10 h-full w-full object-cover object-top opacity-0 transition-opacity duration-500"
-          style={{ opacity: result ? 1 : 0 }}
+          className="absolute inset-0 z-10 h-full w-full object-cover object-top opacity-0 transition-opacity duration-700"
+          style={{ opacity: showCloseup ? 1 : 0 }}
         />
       )}
 
