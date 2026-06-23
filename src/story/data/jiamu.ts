@@ -15,6 +15,11 @@ export const JIAMU: NpcDef = {
     open: './assets/portraits/jiamu-open.webp',
     guarded: './assets/portraits/jiamu-guarded.webp',
   },
+  portraitFrames: {
+    calm: { position: 'center 42%' },
+    open: { position: 'center 42%' },
+    guarded: { position: 'center 42%' },
+  },
 };
 
 export const SCENE_RONGQING: Scene = {

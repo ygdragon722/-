@@ -13,9 +13,10 @@ interface Props {
   beats: Beat[];
   onComplete: () => void; // 最后一拍最后一句翻完、再点一次后触发
   chapterLabel?: string;  // 顶部小标签（如"第二天"），不传则不显示
+  onBack?: () => void;
 }
 
-export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
+export default function BeatScene({ beats, onComplete, chapterLabel, onBack }: Props) {
   const [beat, setBeat] = useState(0);
   const current = beats[beat];
   const isLast = beat >= beats.length - 1;
@@ -23,6 +24,14 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
   const advance = () => {
     if (isLast) onComplete();
     else setBeat((b) => b + 1);
+  };
+
+  const goBack = () => {
+    if (beat > 0) {
+      setBeat((b) => b - 1);
+      return;
+    }
+    onBack?.();
   };
 
   return (
@@ -49,6 +58,7 @@ export default function BeatScene({ beats, onComplete, chapterLabel }: Props) {
         text={current.text}
         startDelay={current.bg ? 900 : 350}
         onDone={advance}
+        onBack={beat > 0 || onBack ? goBack : undefined}
       />
     </div>
   );

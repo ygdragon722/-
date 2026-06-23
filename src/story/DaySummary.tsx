@@ -3,7 +3,8 @@
 // 不是大段描写，只是把这一天听见/看见的几句话点一下——判词式的大结局只在 Ending.tsx，
 // 走完所有天数才出现一次，这里每天都不重复。
 import { useState } from 'react';
-import { useArm } from './SubtitleBox';
+import { useArm } from './useArm';
+import BackButton from './BackButton';
 
 interface Props {
   tag: string;                 // 顶部小标签，如"悟"
@@ -11,15 +12,28 @@ interface Props {
   beats: React.ReactNode[];    // 几条简短总结，一条一条翻页
   continueLabel: string;       // "前往第二天 →"
   onContinue: () => void;
+  onBack?: () => void;
 }
 
-export default function DaySummary({ tag, bg, beats, continueLabel, onContinue }: Props) {
+export default function DaySummary({ tag, bg, beats, continueLabel, onContinue, onBack }: Props) {
   const [idx, setIdx] = useState(0); // 当前显示第几条（0 起）
   const isDone = idx >= beats.length;
   const continueArmed = useArm(isDone);
 
   const advance = () => {
     if (!isDone) setIdx((i) => i + 1);
+  };
+
+  const goBack = () => {
+    if (isDone) {
+      setIdx(beats.length - 1);
+      return;
+    }
+    if (idx > 0) {
+      setIdx((i) => i - 1);
+      return;
+    }
+    onBack?.();
   };
 
   return (
@@ -31,6 +45,11 @@ export default function DaySummary({ tag, bg, beats, continueLabel, onContinue }
         </>
       )}
       <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>
+      {(idx > 0 || isDone || onBack) && (
+        <div className="relative z-20 mb-6 flex justify-start">
+          <BackButton label={idx > 0 || isDone ? '上一段' : '上一幕'} onClick={goBack} />
+        </div>
+      )}
 
       {isDone ? (
         <div className="relative flex-1" />
@@ -46,12 +65,12 @@ export default function DaySummary({ tag, bg, beats, continueLabel, onContinue }
         <button
           onClick={onContinue}
           disabled={!continueArmed}
-          className="relative w-full animate-fade-in rounded border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10"
+          className="relative w-full animate-fade-in rounded-md border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10"
         >
           {continueLabel}
         </button>
       ) : (
-        <div className="relative pt-6 text-center text-[11px] tracking-widest text-stone-600">轻触继续</div>
+        <div className="relative pt-6 text-center text-[11px] tracking-widest text-stone-300/80">轻触继续</div>
       )}
     </div>
   );

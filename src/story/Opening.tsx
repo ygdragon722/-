@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { OPENING_BEATS } from './data/opening';
 import BeatScene from './BeatScene';
+import BackButton from './BackButton';
 
 interface Props {
   onDone: (name: string) => void;
@@ -17,16 +18,19 @@ export default function Opening({ onDone }: Props) {
     return <BeatScene beats={OPENING_BEATS} onComplete={() => setPhase('name')} />;
   }
 
-  // 接续冷开场最后一拍的场景图（若有）；最后一拍本身故意留暗场，不提前剧透角色，故这里通常为空
-  const lastBg = OPENING_BEATS[OPENING_BEATS.length - 1].bg;
+  // 接续冷开场最近的一张场景图；最后一拍若是暗场，也不要让报名字页忽然掉进纯黑。
+  const lastBg = [...OPENING_BEATS].reverse().find((beat) => beat.bg)?.bg;
 
   // ===== 报名字 → 入梦 =====
   return (
     <div className="relative mx-auto flex min-h-screen w-full max-w-[440px] flex-col items-center justify-center gap-6 overflow-hidden bg-stone-950 px-8">
       {lastBg && (
-        <img src={lastBg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-35" />
+        <img src={lastBg} alt="" className="absolute inset-0 h-full w-full object-cover opacity-50" />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/85 to-stone-950/95" />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/78 to-stone-950/90" />
+      <div className="relative z-20 w-full max-w-[260px]">
+        <BackButton label="回看开场" onClick={() => setPhase('cold')} />
+      </div>
 
       <p className="relative text-center text-[15px] leading-8 text-stone-300 drop-shadow">
         慌乱中，你顺口应下。
@@ -38,12 +42,12 @@ export default function Opening({ onDone }: Props) {
         onChange={(e) => setName(e.target.value)}
         maxLength={12}
         placeholder="写下你的名字"
-        className="relative w-full max-w-[260px] rounded border border-stone-600 bg-stone-900/80 px-4 py-3 text-center text-[16px] text-amber-50 outline-none backdrop-blur-sm focus:border-amber-300/70"
+        className="relative w-full max-w-[260px] rounded-md border border-stone-600 bg-stone-900/80 px-4 py-3 text-center text-[16px] text-amber-50 outline-none backdrop-blur-sm focus:border-amber-300/70"
       />
       <button
         disabled={!name.trim()}
         onClick={() => onDone(name.trim())}
-        className="relative rounded border border-amber-300/60 px-6 py-2.5 text-[14px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
+        className="relative rounded-md border border-amber-300/60 px-6 py-2.5 text-[14px] text-amber-100 transition hover:bg-amber-300/10 disabled:cursor-not-allowed disabled:opacity-40"
       >
         入梦
       </button>

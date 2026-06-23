@@ -51,9 +51,17 @@ export interface NpcDef {
   portrait?: string;       // 立绘路径（透明/白底）
   // 对话近景表情：calm=默认表演 / open=卸防读对 / guarded=戒备读错
   portraits?: Partial<Record<'calm' | 'open' | 'guarded', string>>;
+  portraitFrames?: Partial<Record<'calm' | 'open' | 'guarded', PortraitFrame>>;
   correctKeys: ReadKey[];  // 能撬开她的"正确钥匙"
   // 宽容度（编码 MBTI）：读错时槽的下滑倍率。凤姐高（难撬难回），湘云低（好亲近）
   guardedness: number;     // 1.0 = 标准；>1 更难、更易推远
+}
+
+export interface PortraitFrame {
+  fit?: 'cover' | 'contain';
+  position?: string;
+  scale?: number;
+  opacity?: number;
 }
 
 // 角色运行时状态：信任/距离槽
@@ -102,6 +110,7 @@ export interface Encounter {
   approaches: ReadApproach[];
   truthThreshold: number;   // 信任达到此值才吐 truth
   truth?: TruthLine;
+  portraitFrames?: Partial<Record<'calm' | 'open' | 'guarded', PortraitFrame>>;
 }
 
 // ========== 案件 ==========

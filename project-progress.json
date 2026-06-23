@@ -1,0 +1,229 @@
+{
+  "projectName": "红楼幻梦",
+  "updatedAt": "2026-06-23",
+  "overall": {
+    "percent": 94,
+    "currentPhaseId": "phase-6",
+    "currentStepId": "014",
+    "label": "已执行生产构建和发布，正在等待线上 Pages 生效验证"
+  },
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "叙事骨架与玩法闭环",
+      "status": "completed",
+      "percent": 100,
+      "description": "完成现代入梦、三天读人、双抉择、终局判词的主链路。"
+    },
+    {
+      "id": "phase-2",
+      "name": "核心文本与结局审稿",
+      "status": "completed",
+      "percent": 100,
+      "description": "完成主要人物场、两天总结、第三天抉择和终局判词的审稿与修改方向落地。"
+    },
+    {
+      "id": "phase-3",
+      "name": "美术资产与风格统一",
+      "status": "completed",
+      "percent": 92,
+      "description": "完成开场、主要人物、关键场景与第二天/第三天氛围图替换，并经实机截图复核。"
+    },
+    {
+      "id": "phase-4",
+      "name": "交互节奏与UI一致性",
+      "status": "completed",
+      "percent": 90,
+      "description": "完成字幕节奏、回退按钮、选择按钮、近景裁切和终局节奏的主要问题修复。"
+    },
+    {
+      "id": "phase-5",
+      "name": "发布前验收与交接",
+      "status": "completed",
+      "percent": 100,
+      "description": "全流程冒烟和生产预览抽检已通过，发布入口已统一。"
+    },
+    {
+      "id": "phase-6",
+      "name": "发布与归档",
+      "status": "current",
+      "percent": 70,
+      "description": "已完成生产构建并发布到 GitHub Pages，等待 main 推送后的线上入口最终验证。"
+    }
+  ],
+  "steps": [
+    {
+      "id": "001",
+      "name": "明确项目形态为竖屏互动短篇",
+      "status": "completed",
+      "phaseId": "phase-1",
+      "completedAt": "2026-06-20",
+      "artifacts": [
+        "README.md",
+        "docs/体验验收清单.md"
+      ]
+    },
+    {
+      "id": "002",
+      "name": "完成三天主线和终局判词",
+      "status": "completed",
+      "phaseId": "phase-1",
+      "completedAt": "2026-06-20",
+      "artifacts": [
+        "src/story/SliceDemo.tsx",
+        "src/story/data/day3.ts",
+        "src/story/Ending.tsx"
+      ]
+    },
+    {
+      "id": "003",
+      "name": "补强现代女性玩家到现代大观园的开场设定",
+      "status": "completed",
+      "phaseId": "phase-2",
+      "completedAt": "2026-06-21",
+      "artifacts": [
+        "src/story/data/opening.ts",
+        "public/assets/scenes/opening-modern-entry.webp",
+        "public/assets/scenes/opening-modern-garden.webp"
+      ]
+    },
+    {
+      "id": "004",
+      "name": "统一主要人物与场景图风格",
+      "status": "completed",
+      "phaseId": "phase-3",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "public/assets/portraits/",
+        "public/assets/scenes/",
+        "docs/ui-audit-2026-06-23/"
+      ]
+    },
+    {
+      "id": "005",
+      "name": "修复场景过快切换与字幕节奏",
+      "status": "completed",
+      "phaseId": "phase-4",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "src/story/BeatScene.tsx",
+        "src/story/SubtitleBox.tsx",
+        "docs/ui-audit-2026-06-23/"
+      ]
+    },
+    {
+      "id": "006",
+      "name": "增加回退按钮和逐段回看能力",
+      "status": "completed",
+      "phaseId": "phase-4",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "src/story/BackButton.tsx",
+        "src/story/SliceDemo.tsx",
+        "src/story/ChoiceScene.tsx",
+        "src/story/Ending.tsx"
+      ]
+    },
+    {
+      "id": "007",
+      "name": "修复第二天人物近景贴图边缘",
+      "status": "completed",
+      "phaseId": "phase-4",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "src/story/data/jiamu.ts",
+        "src/story/data/wangfuren2.ts",
+        "docs/ui-audit-2026-06-23/next-slice-day2-day3/"
+      ]
+    },
+    {
+      "id": "008",
+      "name": "终局页和回退链路验收",
+      "status": "completed",
+      "phaseId": "phase-5",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "docs/ui-audit-2026-06-23/ending-backchain/"
+      ]
+    },
+    {
+      "id": "009",
+      "name": "全流程冒烟验收",
+      "status": "completed",
+      "phaseId": "phase-5",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "docs/ui-audit-2026-06-23/full-flow-smoke/",
+        "npm run build"
+      ]
+    },
+    {
+      "id": "010",
+      "name": "沉淀视觉小说画面验收 skill",
+      "status": "completed",
+      "phaseId": "phase-5",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "/Users/mashengjia/.codex/skills/visual-novel-scene-audit/",
+        "/Users/mashengjia/AI-Projects-Portal/agent-skills/visual-novel-scene-audit/"
+      ]
+    },
+    {
+      "id": "011",
+      "name": "整理发布前项目进度与收尾清单",
+      "status": "completed",
+      "phaseId": "phase-5",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "project-progress.json",
+        "项目进度条设计.md",
+        "docs/项目收尾盘点_2026-06-23.md"
+      ]
+    },
+    {
+      "id": "012",
+      "name": "确认发布目标和入口",
+      "status": "completed",
+      "phaseId": "phase-6",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "README.md",
+        "vite.config.ts",
+        "https://ygdragon722.github.io/-/"
+      ]
+    },
+    {
+      "id": "013",
+      "name": "发布前生产预览抽检",
+      "status": "completed",
+      "phaseId": "phase-5",
+      "completedAt": "2026-06-23",
+      "artifacts": [
+        "dist/",
+        "docs/ui-audit-2026-06-23/production-preview/",
+        "http://127.0.0.1:4176/"
+      ]
+    },
+    {
+      "id": "014",
+      "name": "线上入口验证",
+      "status": "current",
+      "phaseId": "phase-6",
+      "artifacts": [
+        "https://ygdragon722.github.io/-/",
+        "manifest.webmanifest",
+        "sw.js"
+      ]
+    }
+  ],
+  "nextActions": [
+    "推送 main，触发仓库 GitHub Pages 工作流。",
+    "等待线上入口从旧哈希切换到本次构建资源。",
+    "验证 https://ygdragon722.github.io/-/、manifest.webmanifest 和 sw.js。"
+  ],
+  "rules": [
+    "进度文件只记录项目元数据和证据路径，不记录隐私内容。",
+    "只有经过实机截图、构建或用户确认的事项才标记为 completed。",
+    "每完成一个收尾动作后更新 currentStepId、overall.percent 和 nextActions。"
+  ]
+}

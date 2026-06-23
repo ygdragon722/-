@@ -8,9 +8,10 @@ interface Props {
   reachedDaiyu: boolean;
   reachedWangfuren?: boolean;
   onContinue: () => void; // 前往第二天
+  onBack?: () => void;
 }
 
-export default function Day1Wrap({ name, reachedFengjie, reachedDaiyu, reachedWangfuren, onContinue }: Props) {
+export default function Day1Wrap({ name, reachedFengjie, reachedDaiyu, reachedWangfuren, onContinue, onBack }: Props) {
   const clues = [
     reachedFengjie && '凤姐袖里死攥着账册——她的混乱是为钱，不是为玉。她从头到尾，没碰过那块玉。',
     reachedDaiyu && '黛玉说，她曾盼那块玉消失。而你今晚——也曾这么想过，对不对？',
@@ -85,6 +86,7 @@ export default function Day1Wrap({ name, reachedFengjie, reachedDaiyu, reachedWa
       beats={beats}
       continueLabel="前往第二天 →"
       onContinue={onContinue}
+      onBack={onBack}
     />
   );
 }

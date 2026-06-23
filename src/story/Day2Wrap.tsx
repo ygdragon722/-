@@ -7,9 +7,10 @@ interface Props {
   reachedJiamu: boolean;      // 读到贾母真话
   reachedWangfuren2: boolean; // 读到王夫人佛堂真话
   onContinue: () => void;     // 前往第三天
+  onBack?: () => void;
 }
 
-export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue }: Props) {
+export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue, onBack }: Props) {
   const clues = [
     reachedJiamu &&
       '贾母不是不知道。她只是说——「查得太清楚，谁都没好处」。她选择了不去看。',
@@ -56,7 +57,7 @@ export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue }
         <br />
         满府的人，到这一刻，还在找那块玉。
         <br />
-        <span className="text-amber-200/90">只有你，记得井边那个名字。</span>
+        <span className="text-amber-200/90">只有你，记得井边那个女孩。</span>
       </p>
     </div>,
 
@@ -77,6 +78,7 @@ export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue }
       beats={beats}
       continueLabel="前往第三天 →"
       onContinue={onContinue}
+      onBack={onBack}
     />
   );
 }

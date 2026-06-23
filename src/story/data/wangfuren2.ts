@@ -23,6 +23,11 @@ export const ENC_WANGFUREN_D2: Encounter = {
   day: 2,
   sceneId: 'fotang',
   npcId: 'wangfuren',
+  portraitFrames: {
+    calm: { position: 'center 55%', opacity: 0.92 },
+    open: { position: 'center 55%', opacity: 0.92 },
+    guarded: { position: 'center 55%', opacity: 0.92 },
+  },
   observation: {
     base: '王夫人在小佛堂里，一下一下地数着佛珠，檀香很重。小蝉的名字，今早已经从月例册子上划掉了——干干净净，像是这个人从没在这府里活过。\n她听见你进来，没有回头，只淡淡道：「来上炷香吧。积德的事，多做些总是好的。」',
   },

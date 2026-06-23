@@ -6,12 +6,16 @@ import type { Beat } from '../BeatScene';
 
 export const OPENING_BEATS: Beat[] = [
   {
-    text: '你读了十年《红楼梦》。\n\n别人读故事，你读人。\n贾母怎么偏心、凤姐怎么撑场面、黛玉为什么非死不可——\n你觉得，这一府的人，你比他们自己更懂。',
-    bg: './assets/locations/yihong.webp',
+    text: '周末，你来到城郊那座仿建的大观园景区。\n\n检票闸机滴了一声，玻璃门里映出一个年轻女人的影子。\n你把导览图折进包里，独自往园子深处走去。',
+    bg: './assets/scenes/opening-modern-entry.webp',
   },
   {
-    text: '你尤其懂宝玉。\n\n他不是懦弱，是太清醒。\n清醒到知道自己救不了任何人，所以选择烂在那个园子里。\n\n你一直这么想。',
-    bg: './assets/locations/qinfang.webp',
+    text: '你读了十年《红楼梦》。\n\n别人来拍照，你却总忍不住读人。\n贾母怎么偏心、凤姐怎么撑场面、黛玉为什么非死不可——\n你觉得，这一府的人，你比他们自己更懂。\n\n尤其是宝玉。',
+    bg: './assets/scenes/opening-modern-garden.webp',
+  },
+  {
+    text: '你一直觉得，宝玉不是懦弱，是太清醒。\n\n清醒到知道自己救不了任何人，所以选择烂在那个园子里。\n\n你走过写着「怡红院」的仿古匾额，心里仍旧这么想。',
+    bg: './assets/scenes/opening-yihong-plaque.webp',
   },
   {
     text: '游人散尽，暮色四合。\n\n假山背后，一个跛脚老者守着一地旧物。\n他抬眼看你，像是已等了很久。\n\n「姑娘，」他说，「真正懂一个人，\n和以为自己懂——差得很远呢。」',

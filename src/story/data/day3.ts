@@ -20,7 +20,7 @@ export const DAY3_BEATS: Beat[] = [
     bg: DAWN_MANSION_BG,
   },
   {
-    text: '一个，是那块玉，到底在哪。\n一个，是井边那个女孩，到底是怎么没的。\n\n天亮之前，你得决定，拿它们怎么办。',
+    text: '一个，是那块玉，到底在哪。\n一个，是井边那个女孩，还要不要有人记得。\n\n天亮之前，你得决定，拿它们怎么办。',
     bg: DAWN_MANSION_BG,
   },
 ];
@@ -64,7 +64,7 @@ export const DAY3_BRIDGE_BEATS: Beat[] = [
 export const GIRL_BG = WELL_RELICS_BG;
 
 export const GIRL_SETUP =
-  '这府里的女子，个个都有一首判词，写尽了她们的命。\n凤姐有，黛玉有，连那高墙里的元妃也有。\n\n唯独她没有。\n没有姓名，没有册子，没有一行字，记得她曾经活过。\n\n而你，是这满园里唯一一个，还记得她的人。';
+  '这府里的女子，个个都有一首判词，写尽了她们的命。\n凤姐有，黛玉有，连那高墙里的元妃也有。\n\n唯独她没有。\n没有正经写下的姓名，没有册子，没有一行字，记得她曾经活过。\n\n而你，是这满园里唯一一个，还记得她的人。';
 
 export const GIRL_CHOICES: { id: GirlChoice; label: string; outcome: string }[] = [
   {

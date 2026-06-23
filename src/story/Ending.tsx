@@ -5,6 +5,7 @@ import type { ReadKey } from './types';
 import { EPILOGUE, GIRL_VERDICT, MORAL_CODA, type JadeChoice, type GirlChoice } from './data/day3';
 import { VERDICTS, type Verdict } from './data/verdicts';
 import { trackEndingReached } from '../analytics';
+import BackButton from './BackButton';
 
 interface RecapItem {
   npc: string;
@@ -17,6 +18,7 @@ interface Props {
   jadeChoice: JadeChoice;
   girlChoice: GirlChoice;
   onRestart: () => void;
+  onBack?: () => void;
 }
 
 interface Beat {
@@ -46,7 +48,7 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
 // key＝该拍在 beats 数组里的下标（0 起）
 const HELD_BEATS: Record<number, number> = { 2: 900, 4: 1400 };
 
-export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart }: Props) {
+export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart, onBack }: Props) {
   const [idx, setIdx] = useState(0); // 当前显示第几拍（0 起）
   const [locked, setLocked] = useState(false);
   const verdict = pickVerdict(readKeys);
@@ -66,6 +68,15 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       setLocked(true);
       setTimeout(() => setLocked(false), hold);
     }
+  };
+
+  const goBack = () => {
+    if (idx > 0) {
+      setIdx((i) => i - 1);
+      setLocked(false);
+      return;
+    }
+    onBack?.();
   };
 
   const beats: Beat[] = [
@@ -148,7 +159,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       content: (
         <button
           onClick={onRestart}
-          className="mt-5 w-full rounded border border-stone-600 py-3 text-[14px] text-stone-300 transition hover:border-amber-300/60 hover:text-amber-100"
+          className="mt-5 w-full rounded-md border border-stone-600 py-3 text-[14px] text-stone-300 transition hover:border-amber-300/60 hover:text-amber-100"
         >
           从头再读一遍
         </button>
@@ -169,6 +180,11 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/55 to-stone-950/90" />
 
       <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">终局</p>
+      {(idx > 0 || onBack) && (
+        <div className="relative z-20 mb-4 flex justify-start">
+          <BackButton label={idx > 0 ? '上一段' : '上一幕'} onClick={goBack} />
+        </div>
+      )}
 
       {isLastBeat ? (
         <>

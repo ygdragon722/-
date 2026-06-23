@@ -1,10 +1,12 @@
 // 一场读人相遇（竖屏移动优先 · 全屏 VN 排版）。
 // 观察走字幕框（点一句翻一句）→ 读完框消失、浮现 4 个读法选项 →
 // 选后她的反应也走字幕框 → 读完出"下一幕"。文字始终在框里，节奏交给玩家。
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { Encounter, NpcDef, Scene, Clue, ReadKey } from './types';
 import { applyRead, initTrust, type ReadResult } from './engine';
-import SubtitleBox, { useArm } from './SubtitleBox';
+import SubtitleBox from './SubtitleBox';
+import { useArm } from './useArm';
+import BackButton from './BackButton';
 
 interface Props {
   npc: NpcDef;
@@ -13,38 +15,34 @@ interface Props {
   clue: Clue;
   onNext?: () => void;      // 有则在反应读完后显示"前往下一幕"
   nextLabel?: string;
+  onBack?: () => void;
   // 抉择后回报：本场是否读到真话 + 用了什么读法 + 玩家说了什么（供结局"反过来读你"归纳与原句回放）
   onResolve?: (info: { reachedTruth: boolean; readKey: ReadKey; playerLine: string }) => void;
 }
 
-export default function EncounterView({ npc, scene, encounter, onNext, nextLabel = '前往下一幕 →', onResolve }: Props) {
+export default function EncounterView({ npc, scene, encounter, onNext, nextLabel = '前往下一幕 →', onBack, onResolve }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
   const [result, setResult] = useState<ReadResult | null>(null);
   const [obsDone, setObsDone] = useState(false);   // 观察读完 → 出选项
   const [reactDone, setReactDone] = useState(false); // 反应读完 → 出下一幕
   const optionsArmed = useArm(obsDone && !result); // 选项刚出现时先不接点击，防误触
   const nextArmed = useArm(reactDone);
-  const [personArrived, setPersonArrived] = useState(false); // 人随着观察文字浮现，不是一开场就杵在空镜头里
 
   const observation = encounter.observation.base;
 
-  // 场景先独自淡入喘一口气，人再随观察文字一起浮现进画面
-  useEffect(() => {
-    setPersonArrived(false);
-    const t = setTimeout(() => setPersonArrived(true), scene.bg ? 900 : 350);
-    return () => clearTimeout(t);
-  }, [encounter.id, scene.bg]);
-
-  // 对话近景：有结果时按读对/读错选表情，缺失则回退到 calm（观察阶段先用 calm 把人带进画面）
-  const expr: 'calm' | 'open' | 'guarded' = !result
-    ? 'calm'
-    : result.truth
+  // 对话近景：观察和选项阶段只看“人景一体”的场景图；选完读法后才切人物近景。
+  const expr: 'calm' | 'open' | 'guarded' = result?.truth
     ? 'open'
-    : result.pushedAway
+    : result?.pushedAway
     ? 'guarded'
     : 'calm';
   const closeup = npc.portraits?.[expr] ?? npc.portraits?.calm ?? null;
-  const showCloseup = !!closeup && (personArrived || !!result);
+  const closeupFrame =
+    encounter.portraitFrames?.[expr]
+    ?? encounter.portraitFrames?.calm
+    ?? npc.portraitFrames?.[expr]
+    ?? npc.portraitFrames?.calm;
+  const showCloseup = !!closeup && !!result;
 
   const handlePick = (approachId: string) => {
     if (result) return;
@@ -65,6 +63,24 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
     setReactDone(false);
   };
 
+  const goBack = () => {
+    if (result && reactDone) {
+      setReactDone(false);
+      return;
+    }
+    if (result) {
+      setTrust(initTrust(npc.id));
+      setResult(null);
+      setReactDone(false);
+      return;
+    }
+    if (obsDone) {
+      setObsDone(false);
+      return;
+    }
+    onBack?.();
+  };
+
   return (
     <div className="relative mx-auto min-h-screen w-full max-w-[440px] overflow-hidden bg-stone-900">
       {/* 场景图铺满（人景一体），进场淡入不硬切 */}
@@ -73,26 +89,37 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
       ) : (
         <div className="absolute inset-0 animate-fade-in-scene bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950" />
       )}
-      {/* 有结果时，场景再压暗一层，聚焦她的近景 */}
+      {/* 观察阶段保留场景可读性；有结果时再压暗一层，聚焦人物近景 */}
       <div
         className={`absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-stone-950/30 transition-opacity duration-500 ${
           result ? 'opacity-100' : 'opacity-90'
         }`}
       />
 
-      {/* 人随观察文字一起淡入到空场景里（脸在上方，字幕框压在下方）；有结果后切换表情，仍是同一张脸淡入淡出 */}
-      {closeup && (
+      {/* 选完读法后，才切到人物近景和她的反应；不要在观察阶段盖掉场景图 */}
+      {result && closeup && (
         <img
           key={expr}
           src={closeup}
           alt={npc.name}
-          className="absolute inset-0 z-10 h-full w-full object-cover object-top opacity-0 transition-opacity duration-700"
-          style={{ opacity: showCloseup ? 1 : 0 }}
+          className={`absolute inset-0 z-10 h-full w-full opacity-0 transition-opacity duration-700 ${
+            closeupFrame?.fit === 'contain' ? 'object-contain' : 'object-cover'
+          }`}
+          style={{
+            opacity: showCloseup ? closeupFrame?.opacity ?? 1 : 0,
+            objectPosition: closeupFrame?.position ?? 'center top',
+            transform: closeupFrame?.scale ? `scale(${closeupFrame.scale})` : undefined,
+          }}
         />
       )}
 
       {/* 场景名牌（左上） */}
       <div className="absolute inset-x-0 top-0 z-20 px-5 pt-6">
+        <div className="mb-3">
+          {(obsDone || result || onBack) && (
+            <BackButton label={obsDone || result ? '回看上一段' : '上一幕'} onClick={goBack} />
+          )}
+        </div>
         <div className="inline-flex flex-col border-l-2 border-amber-200/70 bg-stone-950/30 py-1 pl-3 pr-4 backdrop-blur-sm">
           <span className="font-serif text-lg font-bold tracking-[0.3em] text-amber-50 drop-shadow">{scene.name}</span>
           <span className="mt-0.5 text-[11px] tracking-wide text-stone-300/90 drop-shadow">{scene.desc}</span>
@@ -104,8 +131,10 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
         <SubtitleBox
           key={`obs-${encounter.id}`}
           text={observation}
-          startDelay={scene.bg ? 1100 : 450}
+          startDelay={scene.bg ? 1400 : 450}
           onDone={() => setObsDone(true)}
+          onBack={onBack}
+          showBoundaryBack={false}
         />
       )}
 
@@ -134,6 +163,8 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
           text={result.approach.outcome}
           startDelay={500}
           onDone={() => setReactDone(true)}
+          onBack={() => setResult(null)}
+          showBoundaryBack={false}
         />
       )}
 
@@ -144,7 +175,7 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
             <button
               onClick={reset}
               disabled={!nextArmed}
-              className="rounded border border-white/25 px-4 py-2 text-[13px] text-stone-400 hover:border-amber-200/50 hover:text-stone-200"
+              className="rounded-md border border-white/25 px-4 py-2 text-[13px] text-stone-400 transition hover:border-amber-200/50 hover:text-stone-200"
             >
               重读这一场
             </button>
@@ -152,7 +183,7 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
               <button
                 onClick={onNext}
                 disabled={!nextArmed}
-                className="flex-1 rounded border border-amber-300/60 px-4 py-2 text-[13px] text-amber-100 hover:bg-amber-300/10"
+                className="flex-1 rounded-md border border-amber-300/60 px-4 py-2 text-[13px] text-amber-100 transition hover:bg-amber-300/10"
               >
                 {nextLabel}
               </button>
