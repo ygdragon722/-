@@ -2,10 +2,10 @@
   "projectName": "红楼幻梦",
   "updatedAt": "2026-06-23",
   "overall": {
-    "percent": 94,
+    "percent": 98,
     "currentPhaseId": "phase-6",
     "currentStepId": "014",
-    "label": "已执行生产构建和发布，正在等待线上 Pages 生效验证"
+    "label": "GitHub Pages 已部署并完成线上资源验证"
   },
   "phases": [
     {
@@ -47,8 +47,8 @@
       "id": "phase-6",
       "name": "发布与归档",
       "status": "current",
-      "percent": 70,
-      "description": "已完成生产构建并发布到 GitHub Pages，等待 main 推送后的线上入口最终验证。"
+      "percent": 90,
+      "description": "已完成生产构建、GitHub Pages 发布、线上入口和关键资源验证。"
     }
   ],
   "steps": [
@@ -207,19 +207,22 @@
     {
       "id": "014",
       "name": "线上入口验证",
-      "status": "current",
+      "status": "completed",
       "phaseId": "phase-6",
+      "completedAt": "2026-06-23",
       "artifacts": [
         "https://ygdragon722.github.io/-/",
         "manifest.webmanifest",
-        "sw.js"
+        "sw.js",
+        "assets/index-BF32pfR7.js",
+        "assets/index-D8Yy_qHW.css"
       ]
     }
   ],
   "nextActions": [
-    "推送 main，触发仓库 GitHub Pages 工作流。",
-    "等待线上入口从旧哈希切换到本次构建资源。",
-    "验证 https://ygdragon722.github.io/-/、manifest.webmanifest 和 sw.js。"
+    "用手机打开 https://ygdragon722.github.io/-/ 做一次手感抽查。",
+    "若手机缓存仍显示旧版，刷新或清理该站点缓存后再看。",
+    "下一轮只处理用户试玩后发现的文案或画面问题。"
   ],
   "rules": [
     "进度文件只记录项目元数据和证据路径，不记录隐私内容。",
