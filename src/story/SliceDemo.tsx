@@ -68,6 +68,14 @@ export default function SliceDemo() {
     setGirlChoice('leave');
   };
 
+  const openStartMenu = () => {
+    setShowTitle(true);
+  };
+
+  const saveNow = () => {
+    writeSave({ name, stage, marks, jadeChoice, girlChoice });
+  };
+
   const mark = (who: string) => (info: Mark) => {
     setMarks((m) => ({ ...m, [who]: info }));
     trackRead({ npcId: who, readKey: info.readKey, reachedTruth: info.reachedTruth });
@@ -100,7 +108,7 @@ export default function SliceDemo() {
   }
 
   if (name === null || stage === 'opening') {
-    return <Opening onDone={(n) => { setName(n); setStage('fengjie'); }} />;
+    return <Opening onMenu={openStartMenu} onDone={(n) => { setName(n); setStage('fengjie'); }} />;
   }
 
   // ===== 第一天：三场已定稿 =====
@@ -113,6 +121,8 @@ export default function SliceDemo() {
         encounter={ENC_FENGJIE_D1}
         clue={CLUE_FENGJIE_FINANCE}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onResolve={mark('fengjie')}
         onNext={() => setStage('daiyu')}
         nextLabel="前往潇湘馆 →"
@@ -129,6 +139,8 @@ export default function SliceDemo() {
         encounter={ENC_DAIYU_D1}
         clue={CLUE_DAIYU_JADE}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onResolve={mark('daiyu')}
         onNext={() => setStage('wangfuren')}
         nextLabel="前往上房 →"
@@ -145,6 +157,8 @@ export default function SliceDemo() {
         encounter={ENC_WANGFUREN_D1}
         clue={CLUE_WANGFUREN_COLD}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onResolve={mark('wangfuren')}
         onNext={() => setStage('day1wrap')}
         nextLabel="把听见的话摆到一起 →"
@@ -160,6 +174,8 @@ export default function SliceDemo() {
         reachedDaiyu={marks.daiyu?.reachedTruth ?? false}
         reachedWangfuren={marks.wangfuren?.reachedTruth ?? false}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onContinue={() => setStage('day2_transition')}
       />
     );
@@ -167,7 +183,7 @@ export default function SliceDemo() {
 
   // ===== 第二天：过渡 + 贾母初场已定稿，王夫人第二场待写 =====
   if (stage === 'day2_transition') {
-    return <BeatScene beats={DAY2_BEATS} chapterLabel="第二天" onBack={goBackStage} onComplete={() => setStage('day2_jiamu')} />;
+    return <BeatScene beats={DAY2_BEATS} chapterLabel="第二天" onBack={goBackStage} onSave={saveNow} onMenu={openStartMenu} onComplete={() => setStage('day2_jiamu')} />;
   }
 
   if (stage === 'day2_jiamu') {
@@ -179,6 +195,8 @@ export default function SliceDemo() {
         encounter={ENC_JIAMU_D2}
         clue={CLUE_JIAMU_SILENCE}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onResolve={mark('jiamu')}
         onNext={() => setStage('day2_wangfuren2')}
         nextLabel="继续 →"
@@ -195,6 +213,8 @@ export default function SliceDemo() {
         encounter={ENC_WANGFUREN_D2}
         clue={CLUE_WANGFUREN_HAND}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onResolve={mark('wangfuren2')}
         onNext={() => setStage('day2wrap')}
         nextLabel="把这一天摆到一起 →"
@@ -208,6 +228,8 @@ export default function SliceDemo() {
         reachedJiamu={marks.jiamu?.reachedTruth ?? false}
         reachedWangfuren2={marks.wangfuren2?.reachedTruth ?? false}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onContinue={() => setStage('day3_transition')}
       />
     );
@@ -215,7 +237,7 @@ export default function SliceDemo() {
 
   // ===== 第三天：两个抉择 =====
   if (stage === 'day3_transition') {
-    return <BeatScene beats={DAY3_BEATS} chapterLabel="第三天" onBack={goBackStage} onComplete={() => setStage('day3_jade')} />;
+    return <BeatScene beats={DAY3_BEATS} chapterLabel="第三天" onBack={goBackStage} onSave={saveNow} onMenu={openStartMenu} onComplete={() => setStage('day3_jade')} />;
   }
 
   if (stage === 'day3_jade') {
@@ -226,6 +248,8 @@ export default function SliceDemo() {
         setup={JADE_SETUP}
         choices={JADE_CHOICES}
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onChoose={(id) => {
           setJadeChoice(id as JadeChoice);
           trackMoralChoice({ choice: 'jade', value: id, ignite: id === 'reveal' });
@@ -236,7 +260,7 @@ export default function SliceDemo() {
   }
 
   if (stage === 'day3_bridge') {
-    return <BeatScene beats={DAY3_BRIDGE_BEATS} onBack={goBackStage} onComplete={() => setStage('day3_girl')} />;
+    return <BeatScene beats={DAY3_BRIDGE_BEATS} onBack={goBackStage} onSave={saveNow} onMenu={openStartMenu} onComplete={() => setStage('day3_girl')} />;
   }
 
   if (stage === 'day3_girl') {
@@ -248,6 +272,8 @@ export default function SliceDemo() {
         choices={GIRL_CHOICES}
         continueLabel="前往终局 →"
         onBack={goBackStage}
+        onSave={saveNow}
+        onMenu={openStartMenu}
         onChoose={(id) => {
           setGirlChoice(id as GirlChoice);
           trackMoralChoice({ choice: 'girl', value: id, ignite: id === 'remember' });
@@ -277,6 +303,8 @@ export default function SliceDemo() {
       jadeChoice={jadeChoice}
       girlChoice={girlChoice}
       onBack={goBackStage}
+      onSave={saveNow}
+      onMenu={openStartMenu}
       onRestart={restart}
     />
   );

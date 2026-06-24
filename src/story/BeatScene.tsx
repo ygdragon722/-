@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import SubtitleBox from './SubtitleBox';
 import ScenePlaque from './ScenePlaque';
+import MenuButton from './MenuButton';
+import SaveButton from './SaveButton';
 
 export interface Beat {
   text: string;
@@ -15,9 +17,11 @@ interface Props {
   onComplete: () => void; // 最后一拍最后一句翻完、再点一次后触发
   chapterLabel?: string;  // 顶部小标签（如"第二天"），不传则不显示
   onBack?: () => void;
+  onSave?: () => void;
+  onMenu?: () => void;
 }
 
-export default function BeatScene({ beats, onComplete, chapterLabel, onBack }: Props) {
+export default function BeatScene({ beats, onComplete, chapterLabel, onBack, onSave, onMenu }: Props) {
   const [beat, setBeat] = useState(0);
   const current = beats[beat];
   const isLast = beat >= beats.length - 1;
@@ -46,6 +50,13 @@ export default function BeatScene({ beats, onComplete, chapterLabel, onBack }: P
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/24 via-transparent to-stone-950/55" />
+
+      {(onSave || onMenu) && (
+        <div className="absolute left-5 top-6 z-20 flex flex-wrap gap-2">
+          {onSave && <SaveButton onSave={onSave} />}
+          {onMenu && <MenuButton onClick={onMenu} />}
+        </div>
+      )}
 
       {chapterLabel && (
         <div className="absolute inset-x-0 top-0 z-20 pt-8">

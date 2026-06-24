@@ -8,9 +8,11 @@ interface Props {
   reachedWangfuren2: boolean; // 读到王夫人佛堂真话
   onContinue: () => void;     // 前往第三天
   onBack?: () => void;
+  onSave?: () => void;
+  onMenu?: () => void;
 }
 
-export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue, onBack }: Props) {
+export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue, onBack, onSave, onMenu }: Props) {
   const clues = [
     reachedJiamu &&
       '贾母不是不知道。她只是说——「查得太清楚，谁都没好处」。她选择了不去看。',
@@ -79,6 +81,8 @@ export default function Day2Wrap({ reachedJiamu, reachedWangfuren2, onContinue, 
       continueLabel="前往第三天 →"
       onContinue={onContinue}
       onBack={onBack}
+      onSave={onSave}
+      onMenu={onMenu}
     />
   );
 }

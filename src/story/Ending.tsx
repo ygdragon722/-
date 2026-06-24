@@ -6,6 +6,8 @@ import { EPILOGUE, GIRL_VERDICT, MORAL_CODA, type JadeChoice, type GirlChoice } 
 import { VERDICTS, type Verdict } from './data/verdicts';
 import { trackEndingReached } from '../analytics';
 import BackButton from './BackButton';
+import MenuButton from './MenuButton';
+import SaveButton from './SaveButton';
 import { playUiSound } from './sound';
 import VNButton from './VNButton';
 import ScenePlaque from './ScenePlaque';
@@ -22,6 +24,8 @@ interface Props {
   girlChoice: GirlChoice;
   onRestart: () => void;
   onBack?: () => void;
+  onSave?: () => void;
+  onMenu?: () => void;
 }
 
 interface Beat {
@@ -51,7 +55,7 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
 // key＝该拍在 beats 数组里的下标（0 起）
 const HELD_BEATS: Record<number, number> = { 2: 900, 4: 1400 };
 
-export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart, onBack }: Props) {
+export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart, onBack, onSave, onMenu }: Props) {
   const [idx, setIdx] = useState(0); // 当前显示第几拍（0 起）
   const [locked, setLocked] = useState(false);
   const verdict = pickVerdict(readKeys);
@@ -189,9 +193,13 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/48 via-stone-950/34 to-stone-950/76" />
 
       <ScenePlaque title="终局" variant="chapter" className="mb-8" />
-      {(idx > 0 || onBack) && (
-        <div className="relative z-20 mb-4 flex justify-start">
-          <BackButton label={idx > 0 ? '上一段' : '上一幕'} onClick={goBack} />
+      {(idx > 0 || onBack || onSave || onMenu) && (
+        <div className="relative z-20 mb-4 flex flex-wrap justify-start gap-2">
+          {(idx > 0 || onBack) && (
+            <BackButton label={idx > 0 ? '上一段' : '上一幕'} onClick={goBack} />
+          )}
+          {onSave && <SaveButton onSave={onSave} />}
+          {onMenu && <MenuButton onClick={onMenu} />}
         </div>
       )}
 

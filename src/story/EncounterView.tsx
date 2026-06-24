@@ -10,6 +10,8 @@ import BackButton from './BackButton';
 import { playUiSound } from './sound';
 import VNButton from './VNButton';
 import ScenePlaque from './ScenePlaque';
+import MenuButton from './MenuButton';
+import SaveButton from './SaveButton';
 
 interface Props {
   npc: NpcDef;
@@ -19,11 +21,13 @@ interface Props {
   onNext?: () => void;      // 有则在反应读完后显示"前往下一幕"
   nextLabel?: string;
   onBack?: () => void;
+  onSave?: () => void;
   // 抉择后回报：本场是否读到真话 + 用了什么读法 + 玩家说了什么（供结局"反过来读你"归纳与原句回放）
   onResolve?: (info: { reachedTruth: boolean; readKey: ReadKey; playerLine: string }) => void;
+  onMenu?: () => void;
 }
 
-export default function EncounterView({ npc, scene, encounter, onNext, nextLabel = '前往下一幕 →', onBack, onResolve }: Props) {
+export default function EncounterView({ npc, scene, encounter, onNext, nextLabel = '前往下一幕 →', onBack, onSave, onResolve, onMenu }: Props) {
   const [trust, setTrust] = useState(() => initTrust(npc.id));
   const [result, setResult] = useState<ReadResult | null>(null);
   const [obsDone, setObsDone] = useState(false);   // 观察读完 → 出选项
@@ -119,10 +123,12 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
 
       {/* 场景名牌（左上） */}
       <div className="absolute inset-x-0 top-0 z-20 px-5 pt-6">
-        <div className="mb-3">
+        <div className="mb-3 flex flex-wrap gap-2">
           {(obsDone || result || onBack) && (
             <BackButton label={obsDone || result ? '回看上一段' : '上一幕'} onClick={goBack} />
           )}
+          {onSave && <SaveButton onSave={onSave} />}
+          {onMenu && <MenuButton onClick={onMenu} />}
         </div>
         <ScenePlaque title={scene.name} subtitle={scene.desc} />
       </div>

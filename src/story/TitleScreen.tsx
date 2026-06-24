@@ -101,10 +101,6 @@ export default function TitleScreen({ canContinue, onStart, onContinue }: Props)
             </VNButton>
           )}
         </div>
-
-        <p className="mt-8 max-w-[280px] text-[11px] leading-5 text-stone-500 drop-shadow">
-          建议戴上耳机，在安静处读完这场旧梦。
-        </p>
       </main>
     </div>
   );

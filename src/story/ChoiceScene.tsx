@@ -8,6 +8,8 @@ import BackButton from './BackButton';
 import { playUiSound } from './sound';
 import VNButton from './VNButton';
 import ScenePlaque from './ScenePlaque';
+import MenuButton from './MenuButton';
+import SaveButton from './SaveButton';
 
 interface Choice {
   id: string;
@@ -23,9 +25,11 @@ interface Props {
   onChoose: (id: string) => void; // 看完反应、点继续后回报所选
   continueLabel?: string;
   onBack?: () => void;
+  onSave?: () => void;
+  onMenu?: () => void;
 }
 
-export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continueLabel = '继续 →', onBack }: Props) {
+export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continueLabel = '继续 →', onBack, onSave, onMenu }: Props) {
   const [setupDone, setSetupDone] = useState(false);              // 铺陈读完 → 出抉择
   const [selecting, setSelecting] = useState<string | null>(null); // 按下但还没落定，给一拍犹豫感
   const [picked, setPicked] = useState<Choice | null>(null);
@@ -68,12 +72,16 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
         </div>
       )}
 
-      {(setupDone || picked || onBack) && (
-        <div className="absolute left-5 top-6 z-20">
-          <BackButton
-            label={picked || setupDone ? '回看上一段' : '上一幕'}
-            onClick={goBack}
-          />
+      {(setupDone || picked || onBack || onSave || onMenu) && (
+        <div className="absolute left-5 top-6 z-20 flex flex-wrap gap-2">
+          {(setupDone || picked || onBack) && (
+            <BackButton
+              label={picked || setupDone ? '回看上一段' : '上一幕'}
+              onClick={goBack}
+            />
+          )}
+          {onSave && <SaveButton onSave={onSave} />}
+          {onMenu && <MenuButton onClick={onMenu} />}
         </div>
       )}
 

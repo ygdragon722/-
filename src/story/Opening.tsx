@@ -6,12 +6,14 @@ import BeatScene from './BeatScene';
 import { playUiSound } from './sound';
 import VNButton from './VNButton';
 import ScenePlaque from './ScenePlaque';
+import MenuButton from './MenuButton';
 
 interface Props {
   onDone: (name: string) => void;
+  onMenu?: () => void;
 }
 
-export default function Opening({ onDone }: Props) {
+export default function Opening({ onDone, onMenu }: Props) {
   const [phase, setPhase] = useState<'briefing' | 'cold' | 'name'>('briefing');
   const [name, setName] = useState('');
 
@@ -26,6 +28,12 @@ export default function Opening({ onDone }: Props) {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-stone-950/52 via-stone-950/22 to-stone-950/86" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_34%,rgba(253,230,138,0.18),transparent_44%)]" />
+
+        {onMenu && (
+          <div className="absolute left-5 top-6 z-20">
+            <MenuButton onClick={onMenu} />
+          </div>
+        )}
 
         <div className="relative z-10 mb-auto mt-4 flex justify-center">
           <ScenePlaque title="序幕" variant="chapter" />
@@ -62,7 +70,7 @@ export default function Opening({ onDone }: Props) {
 
   // ===== 冷开场 =====
   if (phase === 'cold') {
-    return <BeatScene beats={OPENING_BEATS} onComplete={() => setPhase('name')} />;
+    return <BeatScene beats={OPENING_BEATS} onComplete={() => setPhase('name')} onMenu={onMenu} />;
   }
 
   // 接续冷开场最近的一张场景图；最后一拍若是暗场，也不要让报名字页忽然掉进纯黑。
@@ -76,6 +84,12 @@ export default function Opening({ onDone }: Props) {
       )}
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/48 via-stone-950/58 to-stone-950/86" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_38%,rgba(251,191,36,0.16),transparent_42%)]" />
+
+      {onMenu && (
+        <div className="absolute left-5 top-6 z-20">
+          <MenuButton onClick={onMenu} />
+        </div>
+      )}
 
       <div className="relative z-10 flex justify-center">
         <ScenePlaque title="入梦" variant="chapter" />
