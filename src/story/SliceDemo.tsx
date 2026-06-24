@@ -45,11 +45,14 @@ const isStage = (s: string): s is Stage => (STAGES as string[]).includes(s);
 interface Mark { reachedTruth: boolean; readKey: ReadKey; playerLine: string }
 
 const saved = loadSave();
+const shouldAutoContinue =
+  typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('continue') === '1';
 
 export default function SliceDemo() {
-  const [showTitle, setShowTitle] = useState(true);
   const [name, setName] = useState<string | null>(saved?.name ?? null);
   const [stage, setStage] = useState<Stage>(saved && isStage(saved.stage) ? saved.stage : 'opening');
+  const canAutoContinue = shouldAutoContinue && !!saved?.name && saved.stage !== 'opening' && isStage(saved.stage);
+  const [showTitle, setShowTitle] = useState(!canAutoContinue);
   const [marks, setMarks] = useState<Record<string, Mark>>((saved?.marks as Record<string, Mark>) ?? {});
   const [jadeChoice, setJadeChoice] = useState<JadeChoice>((saved?.jadeChoice as JadeChoice) ?? 'hide');
   const [girlChoice, setGirlChoice] = useState<GirlChoice>((saved?.girlChoice as GirlChoice) ?? 'leave');

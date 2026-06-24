@@ -22,7 +22,7 @@ export const SCENE_OPERA_HALL: Scene = {
   id: 'opera_hall',
   name: '赏戏厅',
   desc: '元妃赏戏，满堂目光黏在台上，凤姐立在廊下调度。',
-  bg: './assets/scenes/fengjie-opera.webp',
+  bg: './assets/scenes/fengjie-opera-v2.webp',
 };
 
 export const CLUE_FENGJIE_FINANCE: Clue = {
