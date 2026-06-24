@@ -19,7 +19,7 @@ export const SCENE_XIAOXIANG: Scene = {
   id: 'xiaoxiang',
   name: '潇湘馆',
   desc: '竹影摇窗，墨迹未干，她独坐灯下。',
-  bg: './assets/scenes/daiyu-xiaoxiang.webp',
+  bg: './assets/scenes/daiyu-xiaoxiang-v2.webp',
 };
 
 export const CLUE_DAIYU_JADE: Clue = {
