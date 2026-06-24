@@ -60,7 +60,7 @@ export default function SliceDemo() {
 
   const restart = () => {
     clearSave();
-    setShowTitle(true);
+    setShowTitle(false);
     setName(null);
     setStage('opening');
     setMarks({});

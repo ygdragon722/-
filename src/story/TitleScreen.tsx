@@ -89,6 +89,17 @@ export default function TitleScreen({ canContinue, onStart, onContinue }: Props)
           >
             声音：{muted ? '关' : '开'}
           </VNButton>
+          {!muted && (
+            <VNButton
+              type="button"
+              onClick={() => playUiSound('choice')}
+              variant="quiet"
+              size="sm"
+              fullWidth
+            >
+              试音
+            </VNButton>
+          )}
         </div>
 
         <p className="mt-8 max-w-[280px] text-[11px] leading-5 text-stone-500 drop-shadow">
