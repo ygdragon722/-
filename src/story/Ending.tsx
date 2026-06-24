@@ -53,7 +53,7 @@ function pickVerdict(keys: (ReadKey | undefined)[]): Verdict {
 
 // 这几拍是压轴牌，不让手快的人一划而过：翻到这一拍时短暂锁住点击，逼着多停一眼
 // key＝该拍在 beats 数组里的下标（0 起）
-const HELD_BEATS: Record<number, number> = { 2: 900, 4: 1400 };
+const HELD_BEATS: Record<number, number> = { 2: 900, 3: 900, 5: 1400 };
 
 export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRestart, onBack, onSave, onMenu }: Props) {
   const [idx, setIdx] = useState(0); // 当前显示第几拍（0 起）
@@ -134,7 +134,22 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
           </div>
         ),
     },
-    // 3：判断逻辑——为什么是这个结论
+    // 3：过桥——从"你怎样处置她"转到"镜子怎样照你"
+    {
+      content: (
+        <div className="text-center">
+          <p className="font-serif text-[13px] leading-8 tracking-[0.28em] text-amber-200/55">
+            然后
+          </p>
+          <p className="mt-5 font-serif text-[18px] leading-10 text-amber-50/92">
+            镜子慢慢转过来，
+            <br />
+            照向了你。
+          </p>
+        </div>
+      ),
+    },
+    // 4：判断逻辑——为什么是这个结论
     {
       content: (
         <p className="text-center text-[14px] leading-8 text-stone-300">
@@ -142,7 +157,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
         </p>
       ),
     },
-    // 4：反过来读你——三字标题 + 白话引句 + 判词 + 道德定音句
+    // 5：反过来读你——三字标题 + 白话引句 + 判词 + 道德定音句
     {
       content: (
         <div className="rounded-md border border-amber-300/40 bg-amber-100/[0.05] p-6 text-center backdrop-blur-sm">
@@ -162,7 +177,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
         </div>
       ),
     },
-    // 5：结尾 + 按钮
+    // 6：结尾 + 按钮
     {
       content: (
         <VNButton
