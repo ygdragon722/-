@@ -36,6 +36,7 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
   const [reactDone, setReactDone] = useState(false);             // 反应读完 → 出继续
   const choicesArmed = useArm(setupDone && !picked); // 抉择刚出现时先不接点击，防误触
   const continueArmed = useArm(reactDone);
+  const hasTopControls = setupDone || picked || onBack || onSave || onMenu;
 
   const handlePick = (c: Choice) => {
     if (selecting) return;
@@ -67,12 +68,12 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
       <div className="absolute inset-0 bg-gradient-to-b from-stone-950/48 via-stone-950/34 to-stone-950/76" />
 
       {tag && (
-        <div className="absolute inset-x-0 top-0 z-20 pt-12">
+        <div className={`absolute inset-x-0 top-0 z-20 ${hasTopControls ? 'pt-28' : 'pt-12'}`}>
           <ScenePlaque title={tag} variant="chapter" />
         </div>
       )}
 
-      {(setupDone || picked || onBack || onSave || onMenu) && (
+      {hasTopControls && (
         <div className="absolute left-5 top-6 z-20 flex flex-wrap gap-2">
           {(setupDone || picked || onBack) && (
             <BackButton
