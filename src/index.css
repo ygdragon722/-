@@ -100,3 +100,106 @@ p {
 .animate-flash-badge {
   animation: flash-badge 1.1s ease-out forwards;
 }
+
+.vn-scene-image {
+  filter: brightness(1.18) contrast(1.04) saturate(1.04);
+}
+
+@keyframes opening-title-rise {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(18px) scale(0.96);
+  }
+  65% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(-2px) scale(1.015);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes opening-title-line {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes opening-title-subtitle {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes opening-title-breathe {
+  0%, 100% {
+    opacity: 0.38;
+    transform: translateY(0) scaleX(1);
+  }
+  50% {
+    opacity: 0.62;
+    transform: translateY(-1px) scaleX(1.04);
+  }
+}
+
+.opening-title {
+  position: relative;
+  display: inline-flex;
+  gap: 0.26em;
+}
+
+.opening-title-char {
+  display: inline-block;
+  opacity: 0;
+  animation: opening-title-rise 1.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.opening-title-glow {
+  position: absolute;
+  width: 12rem;
+  height: 4.5rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgb(251 191 36 / 0.24), rgb(120 53 15 / 0));
+  filter: blur(18px);
+  animation: opening-title-breathe 3.6s ease-in-out infinite;
+}
+
+.opening-title-line {
+  width: 8.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(253 230 138 / 0.72), transparent);
+  transform-origin: center;
+  opacity: 0;
+  animation: opening-title-line 1.1s ease-out 1.05s forwards;
+}
+
+.opening-title-subtitle {
+  opacity: 0;
+  animation: opening-title-subtitle 0.9s ease-out 1.35s forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opening-title-char,
+  .opening-title-line,
+  .opening-title-subtitle,
+  .opening-title-glow {
+    animation: none;
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}

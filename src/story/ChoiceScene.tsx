@@ -5,6 +5,9 @@ import { useState } from 'react';
 import SubtitleBox from './SubtitleBox';
 import { useArm } from './useArm';
 import BackButton from './BackButton';
+import { playUiSound } from './sound';
+import VNButton from './VNButton';
+import ScenePlaque from './ScenePlaque';
 
 interface Choice {
   id: string;
@@ -32,6 +35,7 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
 
   const handlePick = (c: Choice) => {
     if (selecting) return;
+    playUiSound('choice');
     setSelecting(c.id);
     setTimeout(() => setPicked(c), 550);
   };
@@ -55,13 +59,13 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
 
   return (
     <div className="relative mx-auto min-h-screen w-full max-w-[440px] overflow-hidden bg-stone-950">
-      {bg && <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/55 to-stone-950/90" />
+      {bg && <img src={bg} alt="" className="vn-scene-image absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />}
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/48 via-stone-950/34 to-stone-950/76" />
 
       {tag && (
-        <p className="absolute inset-x-0 top-0 z-20 pt-12 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">
-          {tag}
-        </p>
+        <div className="absolute inset-x-0 top-0 z-20 pt-12">
+          <ScenePlaque title={tag} variant="chapter" />
+        </div>
       )}
 
       {(setupDone || picked || onBack) && (
@@ -93,12 +97,12 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
               onClick={() => handlePick(c)}
               disabled={!!selecting || !choicesArmed}
               style={{ animationDelay: `${i * 220}ms` }}
-              className={`block w-full animate-fade-in rounded-md border px-6 py-6 text-center font-serif text-[16px] leading-8 tracking-[0.05em] backdrop-blur-sm transition-all duration-500 active:scale-[0.98] ${
+              className={`block w-full cursor-pointer animate-fade-in rounded-md border px-6 py-6 text-center font-serif text-[16px] leading-8 tracking-[0.05em] shadow-[0_12px_34px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-all duration-500 disabled:cursor-not-allowed active:scale-[0.98] ${
                 selecting === c.id
                   ? 'scale-[1.02] border-amber-200 bg-amber-100/10 text-amber-50'
                   : selecting
-                  ? 'border-white/10 text-stone-500 opacity-40'
-                  : 'border-amber-200/30 text-stone-100 hover:border-amber-200/70 hover:bg-amber-100/5'
+                  ? 'border-white/10 bg-stone-950/42 text-stone-500 opacity-40'
+                  : 'border-amber-200/30 bg-stone-950/58 text-stone-100 hover:border-amber-200/70 hover:bg-stone-900/76 hover:text-amber-50'
               }`}
             >
               {c.label}
@@ -125,13 +129,17 @@ export default function ChoiceScene({ tag, bg, setup, choices, onChoose, continu
       {/* 四、反应读完：继续 */}
       {picked && reactDone && (
         <div className="absolute inset-x-0 bottom-0 z-20 animate-fade-in px-7 pb-14">
-          <button
-            onClick={() => onChoose(picked.id)}
+          <VNButton
+            onClick={() => {
+              playUiSound('tap');
+              onChoose(picked.id);
+            }}
             disabled={!continueArmed}
-            className="w-full rounded-md border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10 disabled:opacity-60"
+            variant="primary"
+            fullWidth
           >
             {continueLabel}
-          </button>
+          </VNButton>
         </div>
       )}
     </div>

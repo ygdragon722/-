@@ -2,6 +2,7 @@
 // 冷开场、每日过渡（丫鬟之死、道德抉择…）都用同一套节奏。字幕框逻辑见 SubtitleBox。
 import { useState } from 'react';
 import SubtitleBox from './SubtitleBox';
+import ScenePlaque from './ScenePlaque';
 
 export interface Beat {
   text: string;
@@ -41,15 +42,15 @@ export default function BeatScene({ beats, onComplete, chapterLabel, onBack }: P
           key={`bg-${beat}`}
           src={current.bg}
           alt=""
-          className={`absolute inset-0 h-full w-full object-cover animate-fade-in-scene ${current.dim ? 'opacity-45' : ''}`}
+          className={`vn-scene-image absolute inset-0 h-full w-full object-cover animate-fade-in-scene ${current.dim ? 'opacity-60' : ''}`}
         />
       )}
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/40 via-transparent to-stone-950/75" />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/24 via-transparent to-stone-950/55" />
 
       {chapterLabel && (
-        <p className="absolute inset-x-0 top-0 z-20 pt-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">
-          {chapterLabel}
-        </p>
+        <div className="absolute inset-x-0 top-0 z-20 pt-8">
+          <ScenePlaque title={chapterLabel} variant="chapter" />
+        </div>
       )}
 
       {/* 字幕框：翻到新画面先让图淡入"喘一口气"，字幕框才浮现，不抢画面；点框翻下一句 */}

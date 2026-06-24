@@ -7,6 +7,9 @@ import { applyRead, initTrust, type ReadResult } from './engine';
 import SubtitleBox from './SubtitleBox';
 import { useArm } from './useArm';
 import BackButton from './BackButton';
+import { playUiSound } from './sound';
+import VNButton from './VNButton';
+import ScenePlaque from './ScenePlaque';
 
 interface Props {
   npc: NpcDef;
@@ -30,7 +33,7 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
 
   const observation = encounter.observation.base;
 
-  // 对话近景：观察和选项阶段只看“人景一体”的场景图；选完读法后才切人物近景。
+  // 对话近景：观察阶段先看空场景；读完观察出选项时，人物 calm 图应在场，选后再切表情。
   const expr: 'calm' | 'open' | 'guarded' = result?.truth
     ? 'open'
     : result?.pushedAway
@@ -42,10 +45,11 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
     ?? encounter.portraitFrames?.calm
     ?? npc.portraitFrames?.[expr]
     ?? npc.portraitFrames?.calm;
-  const showCloseup = !!closeup && !!result;
+  const showCloseup = !!closeup && (obsDone || !!result);
 
   const handlePick = (approachId: string) => {
     if (result) return;
+    playUiSound('choice');
     const { next, result: r } = applyRead(npc, encounter, trust, approachId);
     setTrust(next);
     setResult(r);
@@ -85,19 +89,19 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
     <div className="relative mx-auto min-h-screen w-full max-w-[440px] overflow-hidden bg-stone-900">
       {/* 场景图铺满（人景一体），进场淡入不硬切 */}
       {scene.bg ? (
-        <img src={scene.bg} alt={scene.name} className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />
+        <img src={scene.bg} alt={scene.name} className="vn-scene-image absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />
       ) : (
         <div className="absolute inset-0 animate-fade-in-scene bg-gradient-to-b from-stone-700 via-stone-800 to-stone-950" />
       )}
       {/* 观察阶段保留场景可读性；有结果时再压暗一层，聚焦人物近景 */}
       <div
-        className={`absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/20 to-stone-950/30 transition-opacity duration-500 ${
-          result ? 'opacity-100' : 'opacity-90'
+        className={`absolute inset-0 bg-gradient-to-t from-stone-950/82 via-stone-950/10 to-stone-950/18 transition-opacity duration-500 ${
+          result ? 'opacity-80' : 'opacity-70'
         }`}
       />
 
-      {/* 选完读法后，才切到人物近景和她的反应；不要在观察阶段盖掉场景图 */}
-      {result && closeup && (
+      {/* 观察读完后，人物入场承接选项；选完读法后再切到她的表情反应。 */}
+      {showCloseup && closeup && (
         <img
           key={expr}
           src={closeup}
@@ -120,10 +124,7 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
             <BackButton label={obsDone || result ? '回看上一段' : '上一幕'} onClick={goBack} />
           )}
         </div>
-        <div className="inline-flex flex-col border-l-2 border-amber-200/70 bg-stone-950/30 py-1 pl-3 pr-4 backdrop-blur-sm">
-          <span className="font-serif text-lg font-bold tracking-[0.3em] text-amber-50 drop-shadow">{scene.name}</span>
-          <span className="mt-0.5 text-[11px] tracking-wide text-stone-300/90 drop-shadow">{scene.desc}</span>
-        </div>
+        <ScenePlaque title={scene.name} subtitle={scene.desc} />
       </div>
 
       {/* 一、观察：字幕框，一句一句点着读 */}
@@ -140,14 +141,14 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
 
       {/* 二、选项：观察读完，字幕框消失、4 个读法浮现 */}
       {!result && obsDone && (
-        <div className="absolute inset-x-0 bottom-0 z-20 animate-fade-in bg-gradient-to-t from-stone-950 via-stone-950/85 to-transparent px-5 pb-8 pt-16">
+        <div className="absolute inset-x-0 bottom-0 z-20 animate-fade-in bg-gradient-to-t from-stone-950 via-stone-950/88 to-transparent px-5 pb-8 pt-16">
           <div className="space-y-2.5">
             {encounter.approaches.map((a) => (
               <button
                 key={a.id}
                 onClick={() => handlePick(a.id)}
                 disabled={!optionsArmed}
-                className="block w-full rounded-md border border-white/20 bg-stone-950/55 px-4 py-3 text-left text-[14px] leading-6 text-stone-100 backdrop-blur-sm transition active:scale-[0.99] hover:border-amber-200/70 hover:bg-stone-900/70"
+                className="block w-full cursor-pointer rounded-md border border-white/20 bg-stone-950/70 px-4 py-3 text-left text-[14px] leading-6 text-stone-50 shadow-[0_10px_35px_rgba(0,0,0,0.35)] backdrop-blur-md transition-all duration-200 hover:border-amber-200/70 hover:bg-stone-900/80 hover:text-amber-50 disabled:cursor-not-allowed disabled:opacity-60 active:scale-[0.99]"
               >
                 {a.playerLine}
               </button>
@@ -172,21 +173,30 @@ export default function EncounterView({ npc, scene, encounter, onNext, nextLabel
       {result && reactDone && (
         <div className="absolute inset-x-0 bottom-0 z-20 animate-fade-in bg-gradient-to-t from-stone-950 via-stone-950/85 to-transparent px-5 pb-8 pt-16">
           <div className="flex gap-3">
-            <button
-              onClick={reset}
+            <VNButton
+              onClick={() => {
+                playUiSound('tap');
+                reset();
+              }}
               disabled={!nextArmed}
-              className="rounded-md border border-white/25 px-4 py-2 text-[13px] text-stone-400 transition hover:border-amber-200/50 hover:text-stone-200"
+              variant="quiet"
+              size="sm"
             >
               重读这一场
-            </button>
+            </VNButton>
             {onNext && (
-              <button
-                onClick={onNext}
+              <VNButton
+                onClick={() => {
+                  playUiSound('tap');
+                  onNext();
+                }}
                 disabled={!nextArmed}
-                className="flex-1 rounded-md border border-amber-300/60 px-4 py-2 text-[13px] text-amber-100 transition hover:bg-amber-300/10"
+                variant="primary"
+                size="sm"
+                className="flex-1"
               >
                 {nextLabel}
-              </button>
+              </VNButton>
             )}
           </div>
         </div>

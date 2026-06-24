@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import type { ReadKey } from './types';
 import { loadSave, writeSave, clearSave } from './save';
+import TitleScreen from './TitleScreen';
 import Opening from './Opening';
 import EncounterView from './EncounterView';
 import BeatScene from './BeatScene';
@@ -46,6 +47,7 @@ interface Mark { reachedTruth: boolean; readKey: ReadKey; playerLine: string }
 const saved = loadSave();
 
 export default function SliceDemo() {
+  const [showTitle, setShowTitle] = useState(true);
   const [name, setName] = useState<string | null>(saved?.name ?? null);
   const [stage, setStage] = useState<Stage>(saved && isStage(saved.stage) ? saved.stage : 'opening');
   const [marks, setMarks] = useState<Record<string, Mark>>((saved?.marks as Record<string, Mark>) ?? {});
@@ -58,6 +60,7 @@ export default function SliceDemo() {
 
   const restart = () => {
     clearSave();
+    setShowTitle(true);
     setName(null);
     setStage('opening');
     setMarks({});
@@ -76,6 +79,25 @@ export default function SliceDemo() {
       return idx > 0 ? STAGES[idx - 1] : current;
     });
   };
+
+  if (showTitle) {
+    const canContinue = !!name && stage !== 'opening';
+    return (
+      <TitleScreen
+        canContinue={canContinue}
+        onStart={() => {
+          clearSave();
+          setName(null);
+          setStage('opening');
+          setMarks({});
+          setJadeChoice('hide');
+          setGirlChoice('leave');
+          setShowTitle(false);
+        }}
+        onContinue={() => setShowTitle(false)}
+      />
+    );
+  }
 
   if (name === null || stage === 'opening') {
     return <Opening onDone={(n) => { setName(n); setStage('fengjie'); }} />;

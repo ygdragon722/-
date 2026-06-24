@@ -5,6 +5,9 @@
 import { useState } from 'react';
 import { useArm } from './useArm';
 import BackButton from './BackButton';
+import { playUiSound } from './sound';
+import VNButton from './VNButton';
+import ScenePlaque from './ScenePlaque';
 
 interface Props {
   tag: string;                 // 顶部小标签，如"悟"
@@ -21,7 +24,10 @@ export default function DaySummary({ tag, bg, beats, continueLabel, onContinue, 
   const continueArmed = useArm(isDone);
 
   const advance = () => {
-    if (!isDone) setIdx((i) => i + 1);
+    if (!isDone) {
+      playUiSound('tap');
+      setIdx((i) => i + 1);
+    }
   };
 
   const goBack = () => {
@@ -40,11 +46,11 @@ export default function DaySummary({ tag, bg, beats, continueLabel, onContinue, 
     <div className="relative mx-auto flex h-screen w-full max-w-[440px] flex-col overflow-hidden bg-stone-950 px-7 py-12">
       {bg && (
         <>
-          <img src={bg} alt="" className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />
-          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/60 to-stone-950/85" />
+          <img src={bg} alt="" className="vn-scene-image absolute inset-0 h-full w-full object-cover animate-fade-in-scene" />
+          <div className="absolute inset-0 bg-gradient-to-b from-stone-950/52 via-stone-950/38 to-stone-950/72" />
         </>
       )}
-      <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">{tag}</p>
+      <ScenePlaque title={tag} variant="chapter" className="mb-8" />
       {(idx > 0 || isDone || onBack) && (
         <div className="relative z-20 mb-6 flex justify-start">
           <BackButton label={idx > 0 || isDone ? '上一段' : '上一幕'} onClick={goBack} />
@@ -62,13 +68,18 @@ export default function DaySummary({ tag, bg, beats, continueLabel, onContinue, 
       )}
 
       {isDone ? (
-        <button
-          onClick={onContinue}
+        <VNButton
+          onClick={() => {
+            playUiSound('tap');
+            onContinue();
+          }}
           disabled={!continueArmed}
-          className="relative w-full animate-fade-in rounded-md border border-amber-300/60 py-3 text-[14px] text-amber-100 transition hover:bg-amber-300/10"
+          variant="primary"
+          fullWidth
+          className="relative animate-fade-in"
         >
           {continueLabel}
-        </button>
+        </VNButton>
       ) : (
         <div className="relative pt-6 text-center text-[11px] tracking-widest text-stone-300/80">轻触继续</div>
       )}

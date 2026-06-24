@@ -3,9 +3,10 @@
 // 只有框能点（鼠标移上去会亮），读完最后一句再点一次触发 onDone（出选项 / 下一拍）。
 import { useState, useEffect, useRef } from 'react';
 import BackButton from './BackButton';
+import { playUiSound } from './sound';
 
 interface Props {
-  text: string;          // 整段文字（可含 \n，内部按行拆；空行只是排版间隔，丢弃）
+  text: string;          // 整段文字；空行分字幕卡，普通换行保留在同一张卡里
   startDelay?: number;   // 首句出现前等待 ms（给画面先被看见、喘一口气），默认 0
   onDone: () => void;    // 最后一句之后再点一次触发
   hint?: string;         // 框底提示
@@ -14,7 +15,10 @@ interface Props {
 }
 
 function linesOf(text: string): string[] {
-  return text.split('\n').map((l) => l.trim()).filter((l) => l !== '');
+  return text
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter((block) => block !== '');
 }
 
 export default function SubtitleBox({
@@ -48,6 +52,7 @@ export default function SubtitleBox({
 
   const advance = () => {
     if (!ready) return; // 画面还在喘气，先不接点击
+    playUiSound('tap');
     if (lineRef.current < lines.length - 1) {
       lineRef.current += 1;
       setLine(lineRef.current);
@@ -70,7 +75,7 @@ export default function SubtitleBox({
 
   return (
     <div className="absolute inset-x-0 bottom-0 z-20 px-5 pb-10">
-      {(line > 0 || (showBoundaryBack && onBack)) && (
+      {ready && (line > 0 || (showBoundaryBack && onBack)) && (
         <div className="mb-3 flex justify-start">
           <BackButton label={line > 0 ? '上一句' : '上一幕'} onClick={goBack} />
         </div>
@@ -85,7 +90,7 @@ export default function SubtitleBox({
         <div className="flex min-h-[3.5rem] items-center justify-center">
           <p
             key={line}
-            className="animate-fade-in text-center text-[16px] leading-8 text-stone-50 drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
+            className="animate-fade-in whitespace-pre-line text-center text-[16px] leading-8 text-stone-50 drop-shadow-[0_1px_4px_rgba(0,0,0,0.7)]"
           >
             {lines[line]}
           </p>

@@ -6,6 +6,9 @@ import { EPILOGUE, GIRL_VERDICT, MORAL_CODA, type JadeChoice, type GirlChoice } 
 import { VERDICTS, type Verdict } from './data/verdicts';
 import { trackEndingReached } from '../analytics';
 import BackButton from './BackButton';
+import { playUiSound } from './sound';
+import VNButton from './VNButton';
+import ScenePlaque from './ScenePlaque';
 
 interface RecapItem {
   npc: string;
@@ -61,6 +64,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
 
   const advance = () => {
     if (locked) return;
+    playUiSound('tap');
     const next = idx + 1;
     setIdx(next);
     const hold = HELD_BEATS[next];
@@ -157,12 +161,17 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
     // 5：结尾 + 按钮
     {
       content: (
-        <button
-          onClick={onRestart}
-          className="mt-5 w-full rounded-md border border-stone-600 py-3 text-[14px] text-stone-300 transition hover:border-amber-300/60 hover:text-amber-100"
+        <VNButton
+          onClick={() => {
+            playUiSound('dream');
+            onRestart();
+          }}
+          variant="quiet"
+          fullWidth
+          className="mt-5"
         >
           从头再读一遍
-        </button>
+        </VNButton>
       ),
     },
   ];
@@ -175,11 +184,11 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
       <img
         src="./assets/scenes/ending-mirror-moon.webp"
         alt=""
-        className="absolute inset-0 h-full w-full object-cover animate-fade-in-scene"
+        className="vn-scene-image absolute inset-0 h-full w-full object-cover animate-fade-in-scene"
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/55 to-stone-950/90" />
+      <div className="absolute inset-0 bg-gradient-to-b from-stone-950/48 via-stone-950/34 to-stone-950/76" />
 
-      <p className="relative mb-8 text-center font-serif text-[12px] tracking-[0.4em] text-amber-200/60">终局</p>
+      <ScenePlaque title="终局" variant="chapter" className="mb-8" />
       {(idx > 0 || onBack) && (
         <div className="relative z-20 mb-4 flex justify-start">
           <BackButton label={idx > 0 ? '上一段' : '上一幕'} onClick={goBack} />
@@ -195,7 +204,7 @@ export default function Ending({ readKeys, recap, jadeChoice, girlChoice, onRest
         <button
           onClick={advance}
           disabled={locked}
-          className="relative flex flex-1 flex-col items-center justify-center"
+          className="relative flex flex-1 cursor-pointer flex-col items-center justify-center disabled:cursor-not-allowed"
         >
           <div key={idx} className={`w-full ${HELD_BEATS[idx] ? 'animate-fade-in-grand' : 'animate-fade-in'}`}>
             {current.content}
