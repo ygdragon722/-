@@ -1,8 +1,13 @@
-type SoundKind = 'tap' | 'choice' | 'dream';
+type SoundKind = 'tap' | 'choice' | 'dream' | 'test';
 
 const MUTE_KEY = 'honglou_audio_muted';
 
 let audioContext: AudioContext | null = null;
+
+interface AudioCapableWindow extends Window {
+  AudioContext?: typeof AudioContext;
+  webkitAudioContext?: typeof AudioContext;
+}
 
 export function isSoundMuted() {
   try {
@@ -22,7 +27,10 @@ export function setSoundMuted(muted: boolean) {
 
 function getAudioContext() {
   if (typeof window === 'undefined') return null;
-  audioContext ??= new window.AudioContext();
+  const audioWindow = window as AudioCapableWindow;
+  const AudioContextClass = audioWindow.AudioContext ?? audioWindow.webkitAudioContext;
+  if (!AudioContextClass) return null;
+  audioContext ??= new AudioContextClass();
   return audioContext;
 }
 
@@ -106,20 +114,28 @@ export function playUiSound(kind: SoundKind = 'tap') {
 
   unlockAudio();
 
+  if (kind === 'test') {
+    playTone(440, 0.32, 0.16);
+    playTone(660, 0.36, 0.11, 0.08);
+    playTone(880, 0.24, 0.08, 0.18);
+    playNoise(0.09, 0.055, 0.02);
+    return;
+  }
+
   if (kind === 'choice') {
-    playTone(520, 0.11, 0.075);
-    playTone(780, 0.16, 0.045, 0.04);
-    playNoise(0.045, 0.035, 0.01);
+    playTone(520, 0.12, 0.095);
+    playTone(780, 0.17, 0.055, 0.04);
+    playNoise(0.05, 0.04, 0.01);
     return;
   }
 
   if (kind === 'dream') {
-    playTone(196, 0.28, 0.075);
-    playTone(294, 0.32, 0.05, 0.035);
-    playTone(392, 0.34, 0.05, 0.07);
+    playTone(196, 0.3, 0.095);
+    playTone(294, 0.34, 0.065, 0.035);
+    playTone(392, 0.36, 0.065, 0.07);
     return;
   }
 
-  playTone(620, 0.075, 0.055);
-  playNoise(0.035, 0.018, 0.005);
+  playTone(620, 0.08, 0.07);
+  playNoise(0.04, 0.022, 0.005);
 }

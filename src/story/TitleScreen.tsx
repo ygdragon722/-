@@ -92,7 +92,7 @@ export default function TitleScreen({ canContinue, onStart, onContinue }: Props)
           {!muted && (
             <VNButton
               type="button"
-              onClick={() => playUiSound('choice')}
+              onClick={() => playUiSound('test')}
               variant="quiet"
               size="sm"
               fullWidth
